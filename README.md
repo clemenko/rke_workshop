@@ -58,7 +58,7 @@ curl -#OL https://rpm.rancher.io/rke2/latest/common/centos/8/noarch/rke2-selinux
 curl -#OL https://rpm.rancher.io/rke2/latest/1.24/centos/8/x86_64/rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm
 
 # pre reqs.
-yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm 
+yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils 
 
 curl -sfL https://get.rke2.io --output install.sh
 ```
@@ -79,6 +79,7 @@ echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n 
 # server install options https://docs.rke2.io/install/install_options/server_config/
 # be patient this takes a few minutes.
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
+yum install -y rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm 
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
 # wait and add link
@@ -101,12 +102,11 @@ token=K........
 mkdir -p /etc/rancher/rke2/ && echo "server: https://$SERVERIP:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
-cd /root/rke2-artifacts/
-INSTALL_RKE2_ARTIFACT_PATH=/root/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh && systemctl enable rke2-agent.service && systemctl start rke2-agent.service
+cd /opt/rke2-artifacts/
+INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
+yum install -y rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm 
+systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 ```
-
-
-
 
 #### Online
 
