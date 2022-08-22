@@ -85,7 +85,7 @@ pdsh -l root -w $host_list 'dnf update -y && mkdir /opt/rke2-artifacts && cd /op
 echo "$GREEN" "ok" "$NORMAL"
 
 echo -n " install scripts"
-pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; chmod 755 easy_rancher.sh'
+pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; chmod 755 easy_rancher.sh' > /dev/null 2>&1
 echo "$GREEN" "ok" "$NORMAL"
 
 echo -n " set up ssh key"
