@@ -54,8 +54,11 @@ mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/
 curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2-images.linux-amd64.tar.zst
 curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2.linux-amd64.tar.gz
 curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/sha256sum-amd64.txt
+curl -#OL https://rpm.rancher.io/rke2/latest/common/centos/8/noarch/rke2-selinux-0.9-1.el8.noarch.rpm
+curl -#OL https://rpm.rancher.io/rke2/latest/1.24/centos/8/x86_64/rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm
 
-dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils
+# pre reqs.
+yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils rke2-common-1.24.3~rke2r1-0.el8.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm 
 
 curl -sfL https://get.rke2.io --output install.sh
 ```
@@ -74,7 +77,52 @@ echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: true" > /etc/
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
 
 # server install options https://docs.rke2.io/install/install_options/server_config/
+# be patient this takes a few minutes.
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
+systemctl enable rke2-server.service && systemctl start rke2-server.service
+
+# wait and add link
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml 
+ln -s /var/lib/rancher/rke2/data/v1*/bin/kubectl  /usr/local/bin/kubectl
+
+# get token on server
+cat /var/lib/rancher/rke2/server/node-token
+# will need this for the agents to join
+```
+
+##### on studentB and studentC - agents
+
+```bash
+# Set the SERVERIP variable to the studenta ip address. $ipa is set automatically.
+SERVERIP=$ipa
+
+# set the token from the one from studentA 
+token=K........
+mkdir -p /etc/rancher/rke2/ && echo "server: https://$SERVERIP:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
+
+# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
+cd /root/rke2-artifacts/
+INSTALL_RKE2_ARTIFACT_PATH=/root/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh && systemctl enable rke2-agent.service && systemctl start rke2-agent.service
+```
+
+
+
+
+#### Online
+
+Online is a little simpler since we can pull the bits.
+
+```bash
+mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
+
+# set up basic config.yaml
+echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: true" > /etc/rancher/rke2/config.yaml; 
+
+# set up ssl passthrough for nginx
+echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
+
+
+curl -sfL https://get.rke2.io | sh - 
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
 # wait and add link
@@ -87,26 +135,17 @@ cat /var/lib/rancher/rke2/server/node-token
 
 ```
 
-### on agents
 
-```bash
-# Set the SERVERIP variable to the studenta ip address. $ipa is set automatically.
-SERVERIP=$ipa
 
-# set the token from the one from studentA 
-token=K107d13b6508d78b91c81bf19c6179b3bd3c0d8c267b7c895d3fafd6d7eca76d9d3::server:078debaf13f07dfe1611526d9ceec385
-mkdir -p /etc/rancher/rke2/ && echo "server: https://$SERVERIP:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
+  pdsh -l $user -w $worker_list 'curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL='$rke2_channel' INSTALL_RKE2_TYPE=agent sh - && systemctl enable rke2-agent.service && mkdir -p /etc/rancher/rke2/ && echo "server: https://'$server':9345" > /etc/rancher/rke2/config.yaml && echo "token: '$token'" >> /etc/rancher/rke2/config.yaml && systemctl start rke2-agent.service' > /dev/null 2>&1
 
-# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
+  rsync -avP $user@$server:/etc/rancher/rke2/rke2.yaml ~/.kube/config > /dev/null 2>&1
+  sed -i'' -e "s/127.0.0.1/$server/g" ~/.kube/config 
 
-cd /root/rke2-artifacts/
-INSTALL_RKE2_ARTIFACT_PATH=/root/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh && systemctl enable rke2-agent.service && systemctl start rke2-agent.service
-```
+  echo "$GREEN" "ok" "$NORMAL"
 
 
 
-
-#### Online
 
 
 ### K3s
