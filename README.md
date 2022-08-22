@@ -2,6 +2,8 @@
 
 #### clemenko@rancherfederal.com| [@clemenko](https://twitter.com/clemenko)
 
+![logo](./images/logo_long.jpg)
+
 ## Agenda
 
 - [Pre-requisites](#Pre-requisites)
@@ -15,9 +17,6 @@
 - [Rancher](#rancher)
 - [Questions, Thoughts](#Questions,-Thoughts)
 - [Profit](#profit)
-
-
-![logo](./images/logo_long.jpg)
 
 ## Pre-requisites
 
@@ -226,6 +225,28 @@ Navigate to the dashboard at http://longhorn.$NUM.rfed.run
 Once everything is running we can move on.
 
 ## Rancher
+
+For time, let's install Rancher in an online fashion.
+
+```bash
+# going to take advantage of helm - install
+curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# create the namespace ahead of time
+kubectl create ns cattle-system
+
+# add repos
+helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
+helm repo add jetstack https://charts.jetstack.io 
+
+# install cert-mamanger
+helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true 
+
+# now for rancher
+helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1
+```
+
+After a short wait, the page will be up at https://rancher.$NUM.rfed.run.
 
 
 ## Questions, Thoughts
