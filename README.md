@@ -40,7 +40,7 @@ echo $NUM
 
 ### RKE2
 
-All the [documentation](https://docs.rke2.io/). We have a choice. We can install airgapped or online.
+If you are bored you can read the [docs](https://docs.rke2.io/). We have a choice to make. We can install [air-gapped](#airgap) or [online](#online).
 
 #### Airgap
 
@@ -49,6 +49,7 @@ For this workshop all the bits have been downloaded for you. Check `/opt/`.
 If we had to get the bits.
 
 ```bash
+# do not run this for the workshop. This is an example.
 mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/
 curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2-images.linux-amd64.tar.zst
 curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2.linux-amd64.tar.gz
@@ -59,14 +60,20 @@ dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink li
 curl -sfL https://get.rke2.io --output install.sh
 ```
 
-##### on studentA
+##### on studentA - first node
 
 ```bash
 cd /opt/rke2-artifacts/
 useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
-echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: false" > /etc/rancher/rke2/config.yaml; 
+
+# set up basic config.yaml
+echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: true" > /etc/rancher/rke2/config.yaml; 
+
+# set up ssl passthrough for nginx
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
+
+# server install options https://docs.rke2.io/install/install_options/server_config/
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
@@ -83,9 +90,14 @@ cat /var/lib/rancher/rke2/server/node-token
 ### on agents
 
 ```bash
-SERVERIP=142.93.179.101
+# Set the SERVERIP variable to the studenta ip address. $ipa is set automatically.
+SERVERIP=$ipa
+
+# set the token from the one from studentA 
 token=K107d13b6508d78b91c81bf19c6179b3bd3c0d8c267b7c895d3fafd6d7eca76d9d3::server:078debaf13f07dfe1611526d9ceec385
 mkdir -p /etc/rancher/rke2/ && echo "server: https://$SERVERIP:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
+
+# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 
 cd /root/rke2-artifacts/
 INSTALL_RKE2_ARTIFACT_PATH=/root/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh && systemctl enable rke2-agent.service && systemctl start rke2-agent.service
