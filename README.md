@@ -4,6 +4,8 @@
 
 ![logo](./images/logo_long.jpg)
 
+This is a simple workshop for installing RKE2 in an air gapped way. We can pivot for online and/or k3s. :D
+
 ## Agenda
 
 - [Pre-requisites](#Pre-requisites)
@@ -26,7 +28,7 @@
 
 ## Choose Your Own Adventure
 
-We have a choice here. RKE2 or K3s, Airgapped or online.
+We have a choice here. RKE2 or K3s, Air-gapped or online.
 
 ### SSH
 
