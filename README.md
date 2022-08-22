@@ -94,12 +94,11 @@ cat /var/lib/rancher/rke2/server/node-token
 ##### on studentB and studentC - agents
 
 ```bash
-# Set the SERVERIP variable to the studenta ip address. $ipa is set automatically.
-SERVERIP=$ipa
-
-# set the token from the one from studentA 
+# set the token from the one from studentA - remember to copy and paste from the first node.
 token=K........
-mkdir -p /etc/rancher/rke2/ && echo "server: https://$SERVERIP:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
+
+# notice $ipa is the ip of the first node
+mkdir -p /etc/rancher/rke2/ && echo "server: https://$ipa:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
@@ -112,6 +111,8 @@ systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 
 Online is a little simpler since we can pull the bits.
 
+##### on the student$NUMa server
+
 ```bash
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
 
@@ -120,7 +121,6 @@ echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: true" > /etc/
 
 # set up ssl passthrough for nginx
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
-
 
 curl -sfL https://get.rke2.io | sh - 
 systemctl enable rke2-server.service && systemctl start rke2-server.service
@@ -132,25 +132,26 @@ ln -s /var/lib/rancher/rke2/data/v1*/bin/kubectl  /usr/local/bin/kubectl
 # get token on server
 cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
-
 ```
 
+##### on studentB and studentC - agents
 
+```bash
+# set the token from the one from studentA - remember to copy and paste from the first node.
+token=K........
 
-  pdsh -l $user -w $worker_list 'curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL='$rke2_channel' INSTALL_RKE2_TYPE=agent sh - && systemctl enable rke2-agent.service && mkdir -p /etc/rancher/rke2/ && echo "server: https://'$server':9345" > /etc/rancher/rke2/config.yaml && echo "token: '$token'" >> /etc/rancher/rke2/config.yaml && systemctl start rke2-agent.service' > /dev/null 2>&1
+# notice $ipa is the ip of the first node
+mkdir -p /etc/rancher/rke2/ && echo "server: https://$ipa:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
 
-  rsync -avP $user@$server:/etc/rancher/rke2/rke2.yaml ~/.kube/config > /dev/null 2>&1
-  sed -i'' -e "s/127.0.0.1/$server/g" ~/.kube/config 
-
-  echo "$GREEN" "ok" "$NORMAL"
-
-
-
-
+# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
+cd /opt/rke2-artifacts/
+curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
+systemctl enable rke2-agent.service && systemctl start rke2-agent.service
+``
 
 ### K3s
 
-Lets deploy [k3s](https://k3s.io). From the $NUMa node we will run all the commands. Don't for get to set the student number.
+For K3s we are only going to look at the online install. From the student$NUMa node we will run all the commands. 
 
 ```bash
 # k3sup install
