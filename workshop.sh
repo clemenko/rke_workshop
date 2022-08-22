@@ -66,7 +66,7 @@ echo "$GREEN" "ok" "$NORMAL"
 sleep 30
 
 echo -n " adding os packages"
-pdsh -l root -w $host_list 'yum install -y iscsi-initiator-utils; systemctl start iscsid.service; systemctl enable iscsid.service'  > /dev/null 2>&1
+pdsh -l root -w $host_list 'yum install -y iscsi-initiator-utils; systemctl start iscsid.service; systemctl enable iscsid.service vim'  > /dev/null 2>&1
 echo "$GREEN" "ok" "$NORMAL"
 
 echo -n " updating sshd "
