@@ -11,11 +11,13 @@
     - [Airgap](#airgap)
     - [Online](#online)
   - [K3s](#K3s)
-- [Ingress](#Ingress)
-- [Storage](#Storage)
-- [Code](#Code)
+- [Longhorn](#longhorn)
+- [Rancher](#rancher)
 - [Questions, Thoughts](#Questions,-Thoughts)
 - [Profit](#profit)
+
+
+![logo](./images/logo_long.jpg)
 
 ## Pre-requisites
 
@@ -32,7 +34,7 @@ We have a choice here. RKE2 or K3s, Airgapped or online.
 Every student has 3 vms. The instructor will assign the student a number. To connect with a root password of `Pa22word`:
 
 ```bash
-ssh root@student$NUMa.stackrox.live # Change $NUM to your student number
+ssh root@student$NUMa.rfed.run # Change $NUM to your student number
 
 # Validate the student number
 echo $NUM
@@ -175,42 +177,9 @@ student1c   Ready    <none>   39s     v1.18.10+k3s1   157.245.222.126   <none>  
 
 congrats you just built a 3 node k3s(k8s) cluster. Not that hard right?
 
-## Ingress
+## Longhorn
 
-If you can't tell I like easy and simple. This also applies to Ingress. For that [Traefik](https://traefik.io/) for the win!
-
-```bash
-# install Traefik CRD for TLS passthrough
-kubectl apply -f https://raw.githubusercontent.com/clemenko/k8s_yaml/master/traefik_crd_deployment.yml
-
-# verify it is up
-kubectl get pod -n traefik
-
-# lets create an ingress entry for this. CHANGE the $NUM to your student number.
-# and yes there are escape characters.
-cat <<EOF | kubectl apply -f -
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
-  name: traefik-ingressroute
-  namespace: traefik
-spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(\`traefik.$NUM.stackrox.live\`)
-      kind: Rule
-      services:
-        - name: traefik
-          port: 8080
-EOF
-```
-
-Now you can navigate in the browser to http://traefik.$NUM.stackrox.live and see the traefik dashboard.
-
-## Storage
-
-Here is the easiest way to build stateful storage on this cluster. [Longhorn](https://longhorn.io) from Rancher is awesome...
+Here is the easiest way to build stateful storage on this cluster. [Longhorn](https://longhorn.io) from Rancher is awesome. Lets deploy from the first node.
 
 ```bash
 # kubectl apply
@@ -229,56 +198,35 @@ watch kubectl get pod -n longhorn-system
 # how about a dashboard? CHANGE the $NUM to your student number.
 # and yes there are escape characters.
 cat <<EOF | kubectl apply -f -
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: traefik-ingressroute
+  name: longhorn
   namespace: longhorn-system
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 spec:
-  entryPoints:
-    - web
-  routes:
-    - match: Host(\`longhorn.$NUM.stackrox.live\`)
-      kind: Rule
-      services:
-        - name: longhorn-frontend
-          port: 80
+  rules:
+  - host: longhorn.$NUM.rfed.run
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: longhorn-frontend
+            port:
+              number: 80
 EOF
 
 ```
 
-Navigate to the dashboard at http://longhorn.$NUM.stackrox.live
+Navigate to the dashboard at http://longhorn.$NUM.rfed.run
 
 Once everything is running we can move on.
 
-## Code
+## Rancher
 
-Deploy if not deployed for you.
-
-```bash
-# curl all the things
-curl -s https://raw.githubusercontent.com/clemenko/k8s_yaml/master/workshop-code-server.yml | sed 's/dockr.life/'$NUM'.stackrox.live/g' | kubectl  apply -f -
-
-# ingress
-curl -s https://raw.githubusercontent.com/clemenko/k8s_yaml/master/workshop_yamls.yaml | sed "s/\$NUM/$NUM/" | kubectl apply -f -
-```
-
-Now you can navigate in the browser to http://code.$NUM.stackrox.live and login in with `Pa22word`.
-
-You will need to add a few things. The root password is `Pa22word`.
-
-We need to setup something.
-
-```bash
-# password is Pa22word
-sudo -i
-
-# add a few packages
-apt update; apt install pdsh vim -y
-
-# Validate student number
-echo $NUM
-```
 
 ## Questions, Thoughts
 

@@ -78,7 +78,7 @@ pdsh -l root -w $host_list 'curl -sLS https://get.k3sup.dev | sudo sh ;echo "Str
 echo "$GREEN" "ok" "$NORMAL"
 
 echo -n " setting up environment"
-pdsh -l root -w $host_list 'echo $(hostname| sed -e "s/student//" -e "s/a//" -e "s/b//" -e "s/b//") > /root/NUM;
+pdsh -l root -w $host_list 'echo $(hostname| sed -e "s/student//" -e "s/a//" -e "s/b//" -e "s/c//") > /root/NUM;
 echo "export NUM=\$(cat /root/NUM)" >> .bash_profile; echo "export ipa=\$(getent hosts student\"\$NUM\"a.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipb=\$(getent hosts student\"\$NUM\"b.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipc=\$(getent hosts student\"\$NUM\"c.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile ; echo "export PATH=\$PATH:/opt/bin" >> .bash_profile'
 
 pdsh -l root -w $host_list 'dnf update -y && mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/sha256sum-amd64.txt && dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils && curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.9.stable.1/rke2-selinux-0.9-1.el8.noarch.rpm; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.3%2Brke2r1.stable.0/rke2-common-1.24.3.rke2r1-0.x86_64.rpm' > /dev/null 2>&1
