@@ -26,6 +26,8 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - Familiarity with a text editor (VS Code, vi, etc.)
 - ASK QUESTIONS!
 
+![kid](./images/tough_kid.jpg)
+
 ## Choose Your Own Adventure
 
 We have a choice here. RKE2 or K3s, Air-gapped or online.
