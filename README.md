@@ -1,4 +1,4 @@
-# Rancher Workshop - https://andyc.info/rkeshop
+# Rancher Workshop - https://rfed.io/rkeshop
 
 #### clemenko@rancherfederal.com| [@clemenko](https://twitter.com/clemenko)
 
