@@ -265,7 +265,7 @@ helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --set h
 
 After a short wait, the page will be up at https://rancher.$NUM.rfed.run.
 
-Ready for a short cut for Rnacher? From the student$NUMa node.
+Ready for a short cut for Rancher? From the student$NUMa node.
 
 ```bash
 /opt/rke2-artifacts/easy_rancher.sh
