@@ -129,7 +129,8 @@ Online is a little simpler since we can pull the bits.
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
 
 # set up basic config.yaml
-echo -e "#disable: rke2-ingress-nginx\n#profile: cis-1.6\nselinux: true" > /etc/rancher/rke2/config.yaml; 
+echo -e "profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\n- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml\n- audit-log-mode=blocking-strict\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
+chmod 600 /etc/rancher/rke2/config.yaml
 
 # set up ssl passthrough for nginx
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
@@ -153,7 +154,9 @@ cat /var/lib/rancher/rke2/server/node-token
 token=K........
 
 # notice $ipa is the ip of the first node
-mkdir -p /etc/rancher/rke2/ && echo "server: https://$ipa:9345" > /etc/rancher/rke2/config.yaml && echo "token: "$token >> /etc/rancher/rke2/config.yaml
+mkdir -p /etc/rancher/rke2/ 
+echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0640\nprofile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
+chmod 600 /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
@@ -165,7 +168,7 @@ systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 
 ### K3s - Online
 
-For K3s we are only going to look at the online install. From the student$NUMa node we will run all the commands. 
+For K3s we are only going to look at the online install. From the student$NUMa node we will run all the commands.
 
 ```bash
 # k3sup install
