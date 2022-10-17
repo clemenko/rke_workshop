@@ -8,7 +8,7 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 
 ## Agenda
 
-- [Pre-requisites](#Pre-requisites)
+- [All the Ws](#All-the-Ws)
 - [Choose Your Own Adventure](#choose-your-own-adventure)
   - [SSH](#ssh)
   - [RKE2](#RKE2)
@@ -20,10 +20,15 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [Questions, Thoughts](#Questions,-Thoughts)
 - [Profit](#profit)
 
-## Pre-requisites
+## All the Ws
 
 - Basic Linux command line skills
 - Familiarity with a text editor (VS Code, vi, etc.)
+- Every student has 3 vms.
+  - The instructor will assign the student a number.
+  - Rocky Linux 9
+- K3s or RKE2
+- Air Gapped or Online
 - ASK QUESTIONS!
 
 ![kid](./images/tough_kid.jpg)
@@ -34,7 +39,7 @@ We have a choice here. RKE2 or K3s, Air-gapped or online.
 
 ### SSH
 
-Every student has 3 vms. The instructor will assign the student a number. To connect with a root password of `Pa22word`:
+To connect with a root password of `Pa22word`:
 
 ```bash
 ssh root@student$NUMa.rfed.run # Change $NUM to your student number
