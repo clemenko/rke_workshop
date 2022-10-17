@@ -12,7 +12,7 @@ key=30:98:4f:c5:47:c2:88:28:fe:3c:23:cd:52:49:51:01
 
 domain=rfed.run
 
-image=rockylinux-8-x64
+image=rockylinux-9-x64
 
 deploy_k3s=false
 
@@ -63,7 +63,7 @@ for i in $(seq 1 $num); do
 done
 echo "$GREEN" "ok" "$NORMAL"
 
-sleep 30
+sleep 40
 
 echo -n " adding os packages"
 pdsh -l root -w $host_list 'yum install -y iscsi-initiator-utils; systemctl start iscsid.service; systemctl enable iscsid.service vim'  > /dev/null 2>&1
