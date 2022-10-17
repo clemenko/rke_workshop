@@ -56,11 +56,11 @@ If we had to get the bits.
 ```bash
 # do not run this for the workshop. This is an example.
 mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2-images.linux-amd64.tar.zst
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/rke2.linux-amd64.tar.gz
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.3%2Brke2r1/sha256sum-amd64.txt
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/rke2-images.linux-amd64.tar.zst
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/rke2.linux-amd64.tar.gz
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/sha256sum-amd64.txt
 curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.9.stable.1/rke2-selinux-0.9-1.el8.noarch.rpm
-curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.3%2Brke2r1.stable.0/rke2-common-1.24.3.rke2r1-0.x86_64.rpm
+curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.6%2Brke2r1.stable.0/rke2-common-1.24.6.rke2r1-0.x86_64.rpm
 
 # pre reqs.
 yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils 
@@ -84,7 +84,7 @@ echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n 
 # server install options https://docs.rke2.io/install/install_options/server_config/
 # be patient this takes a few minutes.
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
-yum install -y rke2-common-1.24.3.rke2r1-0.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm
+yum install -y rke2-common-1.24.6.rke2r1-0.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
 # wait and add link
@@ -108,7 +108,7 @@ mkdir -p /etc/rancher/rke2/ && echo "server: https://$ipa:9345" > /etc/rancher/r
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
-yum install -y rke2-common-1.24.3.rke2r1-0.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm
+yum install -y rke2-common-1.24.6.rke2r1-0.x86_64.rpm rke2-selinux-0.9-1.el8.noarch.rpm
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 ```
 
