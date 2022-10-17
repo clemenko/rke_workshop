@@ -253,10 +253,11 @@ kubectl create ns cattle-system
 
 # add repos
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
-helm repo add jetstack https://charts.jetstack.io 
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
 
 # install cert-mamanger
-helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true 
+helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true --version v1.7.1
 
 # now for rancher
 helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1
