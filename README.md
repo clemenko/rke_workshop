@@ -11,9 +11,8 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [All the Ws](#All-the-Ws)
 - [Choose Your Own Adventure](#choose-your-own-adventure)
   - [SSH](#ssh)
-  - [RKE2](#RKE2)
-    - [Airgap](#airgap)
-    - [Online](#online)
+  - [RKE2 - Air Gapped](#RKE2---Air-Gapped)
+  - [RKE2 - Online](#RKE2---Online)
   - [K3s](#K3s)
 - [Longhorn](#longhorn)
 - [Rancher](#rancher)
@@ -48,11 +47,9 @@ ssh root@student$NUMa.rfed.run # Change $NUM to your student number
 echo $NUM
 ```
 
-### RKE2
+### RKE2 - Air Gapped
 
 If you are bored you can read the [docs](https://docs.rke2.io/). We have a choice to make. We can install [air-gapped](#airgap) or [online](#online).
-
-#### Airgap
 
 For this workshop all the bits have been downloaded for you. Check `/opt/`.
 
@@ -73,7 +70,7 @@ yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink li
 curl -sfL https://get.rke2.io --output install.sh
 ```
 
-##### on studentA - first node
+#### on studentA - first node
 
 ```bash
 cd /opt/rke2-artifacts/
@@ -82,6 +79,7 @@ mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
 
 # set up basic config.yaml
 echo -e "profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\n- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml\n- audit-log-mode=blocking-strict\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
+chmod 600 /etc/rancher/rke2/config.yaml
 
 # set up ssl passthrough for nginx
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
@@ -101,7 +99,7 @@ cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
 ```
 
-##### on studentB and studentC - agents
+#### on studentB and studentC - agents
 
 ```bash
 # set the token from the one from studentA - remember to copy and paste from the first node.
@@ -110,6 +108,7 @@ token=K........
 # notice $ipa is the ip of the first node
 mkdir -p /etc/rancher/rke2/
 echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0640\nprofile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
+chmod 600 /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
@@ -118,11 +117,13 @@ yum install -y rke2-common-1.24.6.rke2r1-0.x86_64.rpm rke2-selinux-0.9-1.el8.noa
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 ```
 
-#### Online
+---
+
+### RKE2 - Online
 
 Online is a little simpler since we can pull the bits.
 
-##### on the student$NUMa server
+#### on the student$NUMa server
 
 ```bash
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
@@ -145,7 +146,7 @@ cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
 ```
 
-##### on studentB and studentC - agents
+#### on studentB and studentC - agents
 
 ```bash
 # set the token from the one from studentA - remember to copy and paste from the first node.
@@ -158,9 +159,11 @@ mkdir -p /etc/rancher/rke2/ && echo "server: https://$ipa:9345" > /etc/rancher/r
 cd /opt/rke2-artifacts/
 curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
-``
+```
 
-### K3s
+---
+
+### K3s - Online
 
 For K3s we are only going to look at the online install. From the student$NUMa node we will run all the commands. 
 
@@ -192,7 +195,7 @@ Here is the easiest way to build stateful storage on this cluster. [Longhorn](ht
 
 ```bash
 # kubectl apply
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.3.2/deploy/longhorn.yaml 
 
 # patch to make it default
 kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
