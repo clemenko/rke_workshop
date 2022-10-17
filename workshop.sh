@@ -138,6 +138,7 @@ EOF
 sysctl -p' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
+echo -e -n " loading tarballs"
 pdsh -l root -w $host_list 'mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.6%2Brke2r1/sha256sum-amd64.txt && dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils && curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.9.stable.1/rke2-selinux-0.9-1.el8.noarch.rpm; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.6%2Brke2r1.stable.0/rke2-common-1.24.6.rke2r1-0.x86_64.rpm' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
