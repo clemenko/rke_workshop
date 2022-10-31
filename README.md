@@ -135,6 +135,53 @@ yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink li
 curl -sfL https://get.rke2.io --output install.sh
 ```
 
+#### RKE2 - STIG
+
+Let's talk about the security dials that we should turn. By all means take a look at https://github.com/clemenko/rancher_stig where we talk about what is needed. Here is the tl:dr.
+
+- Enable SElinux
+- Update the config for the Control Plane and Worker nodes.
+
+Control Plane Typical Config:
+
+```bash
+profile: cis-1.6
+selinux: true
+secrets-encryption: true
+write-kubeconfig-mode: 0640
+kube-controller-manager-arg:
+- "use-service-account-credentials=true"
+- "tls-min-version=VersionTLS12"
+- "tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+kube-scheduler-arg:
+- "tls-min-version=VersionTLS12"
+- "tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+kube-apiserver-arg:
+- "tls-min-version=VersionTLS12"
+- "tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
+- "authorization-mode=RBAC,Node"
+- "anonymous-auth=false"
+- "audit-policy-file=/etc/rancher/rke2/audit-policy.yaml"
+- "audit-log-mode=blocking-strict"
+kubelet-arg:
+- "protect-kernel-defaults=true"
+```
+
+Worker Typical Config:
+
+```bash
+token: $TOKEN
+server: https://$RKE_SERVER:9345
+write-kubeconfig-mode: 0640
+profile: cis-1.6
+kube-apiserver-arg:
+- "authorization-mode=RBAC,Node"
+kubelet-arg:
+- "protect-kernel-defaults=true"
+```
+
+For the instructions below all the files are already set for us. So we don't need to manually update `/etc/rancher/rke2/config.yaml`. :D
+
 #### on studentA - first node
 
 ```bash
