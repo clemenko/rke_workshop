@@ -14,10 +14,10 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
   - [SSH](#ssh)
   - [RKE2 - Air Gapped](#RKE2---Air-Gapped)
   - [RKE2 - Online](#RKE2---Online)
-  - [K3s](#K3s)
 - [Longhorn](#longhorn)
 - [Rancher](#rancher)
 - [Neuvector](#neuvector)
+- [Gitea and Fleet](#gitea-and-fleet)
 - [Questions, Thoughts](#Questions,-Thoughts)
 - [Profit](#profit)
 
@@ -111,9 +111,6 @@ ssh root@student$NUMa.rfed.run # Change $NUM to your student number
 
 # Validate the student number
 echo $NUM
-
-# going to take advantage of helm - install
-curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
 
 ### RKE2 - Air Gapped
@@ -282,32 +279,6 @@ systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 
 ---
 
-### K3s - Online
-
-For K3s we are only going to look at the online install. From the student$NUMa node we will run all the commands.
-
-```bash
-# k3sup install
-k3sup install --ip $ipa --user root --k3s-extra-args '--no-deploy traefik' --cluster --local-path ~/.kube/config
-k3sup join --ip $ipb --server-ip $ipa --user root
-k3sup join --ip $ipc --server-ip $ipa --user root
-
-# Wait about 15 seconds to see the nodes are coming online.
-kubectl get node -o wide
-```
-
-At this point you should see something similar.
-
-```bash
-root@student1a:~# kubectl get node -o wide
-NAME        STATUS   ROLES    AGE     VERSION         INTERNAL-IP       EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
-student1a   Ready    master   4m31s   v1.18.10+k3s1   157.245.222.116   <none>        Ubuntu 20.04.1 LTS   5.4.0-45-generic   containerd://1.3.3-k3s2
-student1b   Ready    <none>   48s     v1.18.10+k3s1   104.131.182.136   <none>        Ubuntu 20.04.1 LTS   5.4.0-45-generic   containerd://1.3.3-k3s2
-student1c   Ready    <none>   39s     v1.18.10+k3s1   157.245.222.126   <none>        Ubuntu 20.04.1 LTS   5.4.0-45-generic   containerd://1.3.3-k3s2
-```
-
-congrats you just built a 3 node k3s(k8s) cluster. Not that hard right?
-
 ## Longhorn
 
 Here is the easiest way to build stateful storage on this cluster. [Longhorn](https://longhorn.io) from Rancher is awesome. Lets deploy from the first node.
@@ -318,7 +289,7 @@ helm repo add longhorn https://charts.longhorn.io
 helm repo update
 helm upgrade -i longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --set ingress.enabled=true --set ingress.host=longhorn.$NUM.rfed.run
 
-# patch to make it default
+# patch to make it default for k3s
 kubectl patch storageclass longhorn -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
@@ -327,31 +298,6 @@ kubectl get sc
 
 # Watch it coming up
 watch kubectl get pod -n longhorn-system
-
-# how about a dashboard? CHANGE the $NUM to your student number.
-# and yes there are escape characters.
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: longhorn
-  namespace: longhorn-system
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-spec:
-  rules:
-  - host: longhorn.$NUM.rfed.run
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: longhorn-frontend
-            port:
-              number: 80
-EOF
-
 ```
 
 Navigate to the dashboard at http://longhorn.$NUM.rfed.run
@@ -392,24 +338,34 @@ If we have time we can start to look at a security layer tool for Kubernetes, ht
 
 ```bash
 helm repo add neuvector https://neuvector.github.io/neuvector-helm/
-
 helm repo update
 
 helm upgrade -i neuvector --namespace neuvector neuvector/core --create-namespace  --set imagePullSecrets=regsecret --set k3s.enabled=true --set k3s.runtimePath=/run/k3s/containerd/containerd.sock --set manager.ingress.enabled=true --set manager.ingress.host=neuvector.$NUM.rfed.run
 ```
 
-## Gitea
+## Gitea and Fleet
 
 Why not add version control? If we have time.
 
 ```bash
 helm repo add gitea-charts https://dl.gitea.io/charts/
-
 helm repo update
 
 helm upgrade -i gitea gitea-charts/gitea --namespace gitea --create-namespace --set gitea.admin.password=Pa22word --set gitea.admin.username=gitea --set persistence.size=500Mi --set postgresql.persistence.size=500Mi --set gitea.config.server.ROOT_URL=http://git.$NUM.rfed.run --set gitea.config.server.DOMAIN=git.$NUM.rfed.run --set ingress.enabled=true --set ingress.hosts[0].host=git.$NUM.rfed.run --set ingress.hosts[0].paths[0].path=/ --set ingress.hosts[0].paths[0].pathType=Prefix
 
+# wait for it to complete
+watch kubectl get pod -n gitea
+
+# now lets mirror
+curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: application/json' -H 'authorization: Basic Z2l0ZWE6UGEyMndvcmQ=' -H 'Content-Type: application/json' -d '{ "clone_addr": "https://github.com/clemenko/fleet", "repo_name": "fleet","repo_owner": "gitea"}'
 ```
+
+Now we can go to http://git.$NUM.rfed.run/.
+
+We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea_fleet.yml to point to `git.$NUM.rfed.run`.
+
+Once edited we can add to fleet with `kubectl apply -f http://git.$NUM.rfed.run/gitea/fleet/raw/branch/main/gitea_fleet.yml`. 
+
 
 ## Questions, Thoughts
 
