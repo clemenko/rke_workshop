@@ -8,7 +8,7 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 
 ## Agenda
 
-- [All the Ws](#All-the-Ws)
+- [Rules of Engagement](#Rules-of-Engagement)
 - [Setup](#setup)
 - [Choose Your Own Adventure](#choose-your-own-adventure)
   - [SSH](#ssh)
@@ -21,14 +21,14 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [Questions, Thoughts](#Questions,-Thoughts)
 - [Profit](#profit)
 
-## All the Ws
+## Rules of Engagement
 
 - Basic Linux command line skills
 - Familiarity with a text editor (VS Code, vi, etc.)
 - Every student has 3 vms.
   - The instructor will assign the student a number.
   - Rocky Linux 9
-- K3s or RKE2
+- RKE2
 - Air Gapped or Online
 - ASK QUESTIONS!
 
@@ -100,7 +100,7 @@ sysctl -p
 
 ## Choose Your Own Adventure
 
-We have a choice here. RKE2 or K3s, Air-gapped or online.
+We have a choice here. RKE2 Air-gapped or online.
 
 ### SSH
 
@@ -112,6 +112,8 @@ ssh root@student$NUMa.rfed.run # Change $NUM to your student number
 # Validate the student number
 echo $NUM
 ```
+
+OR `csshX root@student1a.rfed.run root@student1b.rfed.run root@student1c.rfed.run`
 
 ### RKE2 - Air Gapped
 
@@ -283,6 +285,8 @@ systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 
 Here is the easiest way to build stateful storage on this cluster. [Longhorn](https://longhorn.io) from Rancher is awesome. Lets deploy from the first node.
 
+Note we are installing online for speed. Please follow the [Air Gap Install](https://longhorn.io/docs/1.3.2/advanced-resources/deploy/airgap/#using-a-helm-chart) guide.
+
 ```bash
 # kubectl apply
 helm repo add longhorn https://charts.longhorn.io
@@ -307,6 +311,8 @@ Once everything is running we can move on.
 ## Rancher
 
 For time, let's install Rancher in an online fashion.
+
+Note we are installing online for speed. Please follow the [Air Gap Install](https://docs.ranchermanager.rancher.io/pages-for-subheaders/air-gapped-helm-cli-install) guide.
 
 ```bash
 # create the namespace ahead of time
@@ -336,6 +342,8 @@ Ready for a short cut for Rancher? From the student$NUMa node.
 
 If we have time we can start to look at a security layer tool for Kubernetes, https://neuvector.com/. They have fairly good [docs here](https://open-docs.neuvector.com/).
 
+Note we are installing online for speed.
+
 ```bash
 helm repo add neuvector https://neuvector.github.io/neuvector-helm/
 helm repo update
@@ -346,6 +354,8 @@ helm upgrade -i neuvector --namespace neuvector neuvector/core --create-namespac
 ## Gitea and Fleet
 
 Why not add version control? If we have time.
+
+Note we are installing online for speed.
 
 ```bash
 helm repo add gitea-charts https://dl.gitea.io/charts/
@@ -366,8 +376,7 @@ We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/mai
 
 Once edited we can add to fleet with `kubectl apply -f http://git.$NUM.rfed.run/gitea/fleet/raw/branch/main/gitea_fleet.yml`. 
 
-
-## Questions, Thoughts
+## Questions, Thoughts, Comments, Concerns
 
 ## Profit
 
