@@ -13,8 +13,9 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [Choose Your Own Adventure](#choose-your-own-adventure)
   - [SSH](#ssh)
   - [RKE2 - STIG](#RKE2---STIG)
-  - [RKE2 - Air Gapped](#RKE2---Air-Gapped)
-  - [RKE2 - Online](#RKE2---Online)
+  - [RKE2 - Install](#RKE2---Install)
+    - [student$NUMa](#studenta)
+    - [student$NUMb-c](#studentb-c)
 - [Longhorn](#longhorn)
 - [Rancher](#rancher)
 - [Neuvector](#neuvector)
@@ -41,6 +42,12 @@ Just a quick note about the vms. We are using Rocky 9. The following packages ar
 
 ```bash
 yum install -y nfs-utils cryptsetup iscsi-initiator-utils
+```
+
+Helm is also installed with. 
+
+```bash
+curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
 
 As well as the following kernel tweaks.
@@ -178,7 +185,7 @@ kubelet-arg:
 
 For the instructions below all the files are already set for us. So we don't need to manually update `/etc/rancher/rke2/config.yaml`. :D
 
-### RKE2 - Air Gapped
+### RKE2 - Install
 
 If you are bored you can read the [docs](https://docs.rke2.io/). We have a choice to make. We can install [air-gapped](#airgap) or [online](#online).
 
@@ -201,7 +208,9 @@ yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink li
 curl -sfL https://get.rke2.io --output install.sh
 ```
 
-#### on studentA - first node
+#### studenta
+
+SSH in and run the following commands. Take your time. Notice the online VS. air gap instructions.
 
 ```bash
 cd /opt/rke2-artifacts/
@@ -209,16 +218,25 @@ useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
 
 # set up basic config.yaml
-echo -e "#profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
+echo -e "profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\n- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml\n- audit-log-mode=blocking-strict\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
 chmod 600 /etc/rancher/rke2/config.yaml
+
+# set up audit policy file
+echo -e "apiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n- level: RequestResponse" > /etc/rancher/rke2/audit-policy.yaml
 
 # set up ssl passthrough for nginx
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
 
 # server install options https://docs.rke2.io/install/install_options/server_config/
 # be patient this takes a few minutes.
+
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
 yum install -y rke2*.rpm
+
+# Or online
+curl -sfL https://get.rke2.io | sh - 
+
+# start all the things
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
 # wait and add link
@@ -230,7 +248,9 @@ cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
 ```
 
-#### on studentB and studentC - agents
+#### studentb-c
+
+Let's run the same commands on the other two servers, b and c.
 
 ```bash
 # set the token from the one from studentA - remember to copy and paste from the first node.
@@ -245,53 +265,11 @@ chmod 600 /etc/rancher/rke2/config.yaml
 cd /opt/rke2-artifacts/
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
 yum install -y *.rpm
-systemctl enable rke2-agent.service && systemctl start rke2-agent.service
-```
 
----
-
-### RKE2 - Online
-
-Online is a little simpler since we can pull the bits.
-
-#### on the student$NUMa server
-
-```bash
-mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
-
-# set up basic config.yaml
-echo -e "#profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\n- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml\n- audit-log-mode=blocking-strict\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
-chmod 600 /etc/rancher/rke2/config.yaml
-
-# set up ssl passthrough for nginx
-echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
-
-curl -sfL https://get.rke2.io | sh - 
-systemctl enable rke2-server.service && systemctl start rke2-server.service
-
-# wait and add link
-export KUBECONFIG=/etc/rancher/rke2/rke2.yaml 
-ln -s /var/lib/rancher/rke2/data/v1*/bin/kubectl  /usr/local/bin/kubectl
-
-# get token on server
-cat /var/lib/rancher/rke2/server/node-token
-# will need this for the agents to join
-```
-
-#### on studentB and studentC - agents
-
-```bash
-# set the token from the one from studentA - remember to copy and paste from the first node.
-token=K........
-
-# notice $ipa is the ip of the first node
-mkdir -p /etc/rancher/rke2/ 
-echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0640\nprofile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
-chmod 600 /etc/rancher/rke2/config.yaml
-
-# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
-cd /opt/rke2-artifacts/
+# Or online
 curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
+
+# start all the things
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
 ```
 
