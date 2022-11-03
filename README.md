@@ -136,13 +136,14 @@ Bottom Line
 
 Control Plane Typical Config:
 
-```bash
+```yaml
 profile: cis-1.6
 selinux: true
 secrets-encryption: true
-use-service-account-credentials: true
 write-kubeconfig-mode: 0640
+streaming-connection-idle-timeout=5m
 kube-controller-manager-arg:
+- "bind-address=127.0.0.1"
 - "use-service-account-credentials=true"
 - "tls-min-version=VersionTLS12"
 - "tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"
@@ -156,13 +157,17 @@ kube-apiserver-arg:
 - "anonymous-auth=false"
 - "audit-policy-file=/etc/rancher/rke2/audit-policy.yaml"
 - "audit-log-mode=blocking-strict"
+- "audit-log-maxage=30"
+- "insecure-port=0"
 kubelet-arg:
 - "protect-kernel-defaults=true"
+- "read-only-port=0"
+- "authorization-mode=Webhook"
 ```
 
 We also need the audit policy in `/etc/rancher/rke2/audit-policy.yaml`.
 
-```bash
+```yaml
 apiVersion: audit.k8s.io/v1
 kind: Policy
 rules:
@@ -171,7 +176,7 @@ rules:
 
 Worker Typical Config:
 
-```bash
+```yaml
 token: $TOKEN
 server: https://$RKE_SERVER:9345
 write-kubeconfig-mode: 0640
@@ -180,6 +185,8 @@ kube-apiserver-arg:
 - "authorization-mode=RBAC,Node"
 kubelet-arg:
 - "protect-kernel-defaults=true"
+- "read-only-port=0"
+- "authorization-mode=Webhook"
 ```
 
 For the instructions below all the files are already set for us. So we don't need to manually update `/etc/rancher/rke2/config.yaml`. :D
@@ -214,7 +221,7 @@ SSH in and run the following commands. Take your time. Notice the online VS. air
 ```bash
 cd /opt/rke2-artifacts/
 useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
-mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/;
+mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/
 
 # set up basic config.yaml
 echo -e "#profile: cis-1.6\nselinux: true\nsecrets-encryption: true\nwrite-kubeconfig-mode: 0640\nkube-controller-manager-arg:\n- use-service-account-credentials=true\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-scheduler-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\nkube-apiserver-arg:\n- tls-min-version=VersionTLS12\n- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384\n- authorization-mode=RBAC,Node\n- anonymous-auth=false\n- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml\n- audit-log-mode=blocking-strict\nkubelet-arg:\n- protect-kernel-defaults=true" > /etc/rancher/rke2/config.yaml
@@ -233,7 +240,7 @@ INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh
 yum install -y rke2*.rpm
 
 # Or online
-curl -sfL https://get.rke2.io | sh - 
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.7 sh - 
 
 # start all the things
 systemctl enable rke2-server.service && systemctl start rke2-server.service
@@ -266,7 +273,7 @@ INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh instal
 yum install -y *.rpm
 
 # Or online
-curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE=agent sh -
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.7 INSTALL_RKE2_TYPE=agent sh -
 
 # start all the things
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
