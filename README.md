@@ -331,8 +331,9 @@ helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --cr
 helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --create-namespace --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1 --set auditLog.level=2 --set auditLog.destination=hostPath
 ```
 
-After a short wait, the page will be up at https://rancher.$NUM.rfed.run.
+Navigate to https://rancher.$NUM.rfed.run.
 
+The username is `admin`.
 The password is `bootStrapAllTheThings`.
 
 Ready for a short cut for Rancher? From the student$NUMa node.
@@ -354,6 +355,11 @@ helm repo update
 helm upgrade -i neuvector --namespace neuvector neuvector/core --create-namespace  --set imagePullSecrets=regsecret --set k3s.enabled=true --set k3s.runtimePath=/run/k3s/containerd/containerd.sock --set manager.ingress.enabled=true --set manager.ingress.host=neuvector.$NUM.rfed.run
 ```
 
+Navigate to https://neuvector.$NUM.rfed.run.
+
+The username is `admin`.
+The password is `admin`.
+
 ## Gitea and Fleet
 
 Why not add version control? If we have time.
@@ -374,6 +380,9 @@ curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: appli
 ```
 
 Now we can go to http://git.$NUM.rfed.run/.
+
+The username is `gitea`.
+The password is `admin`.
 
 We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea_fleet.yml to point to `git.$NUM.rfed.run`.
 
