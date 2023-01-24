@@ -27,7 +27,7 @@ echo "$GREEN" "ok" "$NORMAL"
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts > /dev/null 2>&1
   helm repo add jetstack https://charts.jetstack.io > /dev/null 2>&1
 
-  helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true --version v1.7.1 > /dev/null 2>&1 
+  helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true > /dev/null 2>&1 
 
   #custom TLS certs
   #kubectl -n cattle-system create secret tls tls-rancher-ingress --cert=tls.crt --key=tls.key
