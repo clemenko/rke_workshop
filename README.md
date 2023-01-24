@@ -35,7 +35,7 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 
 ![kid](./images/tough_kid.jpg)
 
-## Setup
+## Setup - COMPLETED ALREADY
 
 Just a quick note about the vms. We are using Rocky 9. This is how the three servers are setup.
 
@@ -107,7 +107,7 @@ sysctl -p
 
 ## Choose Your Own Adventure
 
-We have a choice here. RKE2 Air-gapped or online.
+We have a choice here. RKE2 Air-gapped or online?
 
 ### SSH
 
@@ -196,22 +196,9 @@ If you are bored you can read the [docs](https://docs.rke2.io/). We have a choic
 
 For this workshop all the bits have been downloaded for you. Check `/opt/`.
 
-If we had to get the bits.
+There is another git repository with all the air-gapping instructions [https://github.com/clemenko/rke_airgap_install](https://github.com/clemenko/rke_airgap_install). 
 
-```bash
-# do not run this for the workshop. This is an example.
-mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/rke2-images.linux-amd64.tar.zst
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/rke2.linux-amd64.tar.gz
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/sha256sum-amd64.txt
-curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.11.stable.1/rke2-selinux-0.11-1.el8.noarch.rpm
-curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.9%2Brke2r1.stable.0/rke2-common-1.24.9.rke2r1-0.x86_64.rpm
-
-# pre reqs.
-yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils 
-
-curl -sfL https://get.rke2.io --output install.sh
-```
+Heck [watch the video](https://www.youtube.com/watch?v=IkQJc5-_duo).
 
 #### studenta
 
