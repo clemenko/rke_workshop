@@ -16,6 +16,12 @@ image=rockylinux-9-x64
 
 deploy_k3s=false
 
+export RKE_VERSION=1.24.9
+export CERT_VERSION=v1.10.0
+export RANCHER_VERSION=v2.7.0
+export LONGHORN_VERSION=v1.4.0
+
+
 ######  NO MOAR EDITS #######
 export RED='\x1b[0;31m'
 export GREEN='\x1b[32m'
@@ -138,7 +144,7 @@ sysctl -p' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -e -n " loading stuff"
-pdsh -l root -w $host_list 'curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash; mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/sha256sum-amd64.txt && dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils && curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.9.stable.1/rke2-selinux-0.9-1.el8.noarch.rpm; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.7%2Brke2r1.stable.0/rke2-common-1.24.7.rke2r1-0.x86_64.rpm' > /dev/null 2>&1
+pdsh -l root -w $host_list "curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash; mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/sha256sum-amd64.txt && dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils && curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v$RKE_VERSION%2Brke2r1.stable.0/rke2-common-$RKE_VERSION.rke2r1-0.x86_64.rpm; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.11.stable.1/rke2-selinux-0.11-1.el8.noarch.rpm" > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " install scripts"

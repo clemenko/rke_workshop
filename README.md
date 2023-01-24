@@ -201,11 +201,11 @@ If we had to get the bits.
 ```bash
 # do not run this for the workshop. This is an example.
 mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/rke2-images.linux-amd64.tar.zst
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/rke2.linux-amd64.tar.gz
-curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.7%2Brke2r1/sha256sum-amd64.txt
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/rke2-images.linux-amd64.tar.zst
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/rke2.linux-amd64.tar.gz
+curl -#OL https://github.com/rancher/rke2/releases/download/v1.24.9%2Brke2r1/sha256sum-amd64.txt
 curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.9.stable.1/rke2-selinux-0.9-1.el8.noarch.rpm
-curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.7%2Brke2r1.stable.0/rke2-common-1.24.7.rke2r1-0.x86_64.rpm
+curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v1.24.9%2Brke2r1.stable.0/rke2-common-1.24.7.rke2r1-0.x86_64.rpm
 
 # pre reqs.
 yum install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils 
@@ -238,7 +238,7 @@ INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh
 yum install -y rke2*.rpm
 
 # Or online
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.7 sh - 
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 sh - 
 
 # start all the things
 systemctl enable rke2-server.service && systemctl start rke2-server.service
@@ -271,7 +271,7 @@ INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh instal
 yum install -y *.rpm
 
 # Or online
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.7 INSTALL_RKE2_TYPE=agent sh -
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 INSTALL_RKE2_TYPE=agent sh -
 
 # start all the things
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
