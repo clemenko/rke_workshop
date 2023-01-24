@@ -234,11 +234,16 @@ echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n 
 # server install options https://docs.rke2.io/install/install_options/server_config/
 # be patient this takes a few minutes.
 
+# OFFLINE ---------------------------------
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
-yum install -y rke2*.rpm
 
-# Or online
+# wait and run separately
+yum install -y rke2*.rpm
+# -----------------------------------------
+
+# ONLINE ----------------------------------
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 sh - 
+# ----------------------------------------- 
 
 # start all the things
 systemctl enable rke2-server.service && systemctl start rke2-server.service
@@ -267,11 +272,16 @@ chmod 600 /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
+
+# OFFLINE ---------------------------------
 INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
 yum install -y *.rpm
+# -----------------------------------------
 
-# Or online
+# ONLINE ----------------------------------
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 INSTALL_RKE2_TYPE=agent sh -
+# -----------------------------------------
+
 
 # start all the things
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
@@ -315,7 +325,7 @@ helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
 # install cert-mamanger
-helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true --version v1.7.1
+helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true
 
 # now for rancher
 helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --create-namespace --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1 --set auditLog.level=2 --set auditLog.destination=hostPath
