@@ -255,7 +255,6 @@ token=K........
 # notice $ipa is the ip of the first node
 mkdir -p /etc/rancher/rke2/
 echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
-chmod 600 /etc/rancher/rke2/config.yaml
 
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
