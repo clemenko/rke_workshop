@@ -6,10 +6,10 @@ metadata:
 spec:
   branch: main
   insecureSkipTLSVerify: true
-  repo: https://git.$NUM.rfed.run/gitea/fleet
+  repo: https://git.$NUM.rfed.run/gitea/workshop
   targetNamespace: flask
   paths:
-  - flask
+  - fleet/flask
 ---
 
 kind: GitRepo
@@ -20,10 +20,10 @@ metadata:
 spec:
   branch: main
   insecureSkipTLSVerify: true
-  repo: https://git.$NUM.rfed.run/gitea/fleet
+  repo: https://git.$NUM.rfed.run/gitea/workshop
   targetNamespace: whoami
   paths:
-  - whoami
+  - fleet/whoami
 
 ---
 
@@ -35,7 +35,7 @@ metadata:
 spec:
   branch: main
   insecureSkipTLSVerify: true
-  repo: https://git.$NUM.rfed.run/gitea/fleet
+  repo: https://git.$NUM.rfed.run/gitea/workshop
   targetNamespace: ghost
   paths:
-  - ghost
+  - fleet/ghost

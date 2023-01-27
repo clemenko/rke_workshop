@@ -362,17 +362,23 @@ helm upgrade -i gitea gitea-charts/gitea --namespace gitea --create-namespace --
 watch kubectl get pod -n gitea
 
 # now lets mirror
-curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: application/json' -H 'authorization: Basic Z2l0ZWE6UGEyMndvcmQ=' -H 'Content-Type: application/json' -d '{ "clone_addr": "https://github.com/clemenko/fleet", "repo_name": "fleet","repo_owner": "gitea"}'
+curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: application/json' -H 'authorization: Basic Z2l0ZWE6UGEyMndvcmQ=' -H 'Content-Type: application/json' -d '{ "clone_addr": "https://github.com/clemenko/rke_workshop", "repo_name": "workshop","repo_owner": "gitea"}'
 ```
 
 Now we can go to http://git.$NUM.rfed.run/.
 
 The username is `gitea`.
-The password is `admin`.
+The password is `Pa22word`.
 
 We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea_fleet.yml to point to `git.$NUM.rfed.run`.
 
-Once edited we can add to fleet with `kubectl apply -f http://git.$NUM.rfed.run/gitea/fleet/raw/branch/main/gitea_fleet.yml`. 
+Once edited we can add to fleet with 
+
+```bash
+# patch
+kubectl patch clusters.fleet.cattle.io -n fleet-local local --type=merge -p '{"metadata": {"labels":{"name":"local"}}}'
+kubectl apply -f http://git.$NUM.rfed.run/gitea/workshop/raw/branch/main/fleet/gitea.yaml
+```
 
 ## Questions, Thoughts, Comments, Concerns
 
