@@ -10,9 +10,9 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 
 - [Rules of Engagement](#Rules-of-Engagement)
 - [Setup](#setup)
+- [RKE2 - STIG](#RKE2---STIG)
 - [Choose Your Own Adventure](#choose-your-own-adventure)
   - [SSH](#ssh)
-  - [RKE2 - STIG](#RKE2---STIG)
   - [RKE2 - Install](#RKE2---Install)
     - [studenta](#studenta)
     - [studentb-c](#studentb-c)
@@ -37,92 +37,9 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 
 ## Setup - COMPLETED ALREADY
 
-Just a quick note about the vms. We are using Rocky 9. This is how the three servers are setup.
+Just a quick note about the vms. We are using Rocky 9. The servers are setup with all the necessary packages and kernel tuning. SELinux is enforcing. Let's talk about STIG's.
 
-```bash
-yum install -y nfs-utils cryptsetup iscsi-initiator-utils
-```
-
-Helm is also installed with.
-
-```bash
-curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
-
-As well as the following kernel tweaks.
-
-```bash
-cat << EOF >> /etc/sysctl.conf
-# SWAP settings
-vm.swappiness=0
-vm.panic_on_oom=0
-vm.overcommit_memory=1
-kernel.panic=10
-kernel.panic_on_oops=1
-vm.max_map_count = 262144
-
-# Have a larger connection range available
-net.ipv4.ip_local_port_range=1024 65000
-
-# Increase max connection
-net.core.somaxconn=10000
-
-# Reuse closed sockets faster
-net.ipv4.tcp_tw_reuse=1
-net.ipv4.tcp_fin_timeout=15
-
-# The maximum number of "backlogged sockets".  Default is 128.
-net.core.somaxconn=4096
-net.core.netdev_max_backlog=4096
-
-# 16MB per socket - which sounds like a lot,
-# but will virtually never consume that much.
-net.core.rmem_max=16777216
-net.core.wmem_max=16777216
-
-# Various network tunables
-net.ipv4.tcp_max_syn_backlog=20480
-net.ipv4.tcp_max_tw_buckets=400000
-net.ipv4.tcp_no_metrics_save=1
-net.ipv4.tcp_rmem=4096 87380 16777216
-net.ipv4.tcp_syn_retries=2
-net.ipv4.tcp_synack_retries=2
-net.ipv4.tcp_wmem=4096 65536 16777216
-
-# ARP cache settings for a highly loaded docker swarm
-net.ipv4.neigh.default.gc_thresh1=8096
-net.ipv4.neigh.default.gc_thresh2=12288
-net.ipv4.neigh.default.gc_thresh3=16384
-
-# ip_forward and tcp keepalive for iptables
-net.ipv4.tcp_keepalive_time=600
-net.ipv4.ip_forward=1
-
-# monitor file system events
-fs.inotify.max_user_instances=8192
-fs.inotify.max_user_watches=1048576
-EOF
-sysctl -p
-```
-
-## Choose Your Own Adventure
-
-We have a choice here. RKE2 Air-gapped or online?
-
-### SSH
-
-To connect with a root password of `Pa22word`:
-
-```bash
-ssh root@student$NUMa.rfed.run # Change $NUM to your student number
-
-# Validate the student number
-echo $NUM
-```
-
-OR `csshX root@student1a.rfed.run root@student1b.rfed.run root@student1c.rfed.run`
-
-### RKE2 - STIG
+## RKE2 - STIG
 
 There is a nice article about it from [Businesswire](https://www.businesswire.com/news/home/20221101005546/en/DISA-Validates-Rancher-Government-Solutions%E2%80%99-Kubernetes-Distribution-RKE2-Security-Technical-Implementation-Guide).
 
@@ -131,6 +48,7 @@ You can download the STIG itself from [https://dl.dod.cyber.mil/wp-content/uploa
 We even have a tl:dr for Rancher https://github.com/clemenko/rancher_stig.
 
 Bottom Line
+
 - Enable SElinux
 - Update the config for the Control Plane and Worker nodes.
 
@@ -188,7 +106,24 @@ kubelet-arg:
 - authorization-mode=Webhook
 ```
 
-For the instructions below all the files are already set for us. So we don't need to manually update `/etc/rancher/rke2/config.yaml`. :D
+Everything is setup below.
+
+## Choose Your Own Adventure
+
+We have a choice here. RKE2 Air-gapped or online?
+
+### SSH
+
+To connect with a root password of `Pa22word`:
+
+```bash
+ssh root@student$NUMa.rfed.run # Change $NUM to your student number
+
+# Validate the student number
+echo $NUM
+```
+
+OR `csshX root@student1a.rfed.run root@student1b.rfed.run root@student1c.rfed.run`
 
 ### RKE2 - Install
 
@@ -196,7 +131,7 @@ If you are bored you can read the [docs](https://docs.rke2.io/). We have a choic
 
 For this workshop all the bits have been downloaded for you. Check `/opt/`.
 
-There is another git repository with all the air-gapping instructions [https://github.com/clemenko/rke_airgap_install](https://github.com/clemenko/rke_airgap_install). 
+There is another git repository with all the air-gapping instructions [https://github.com/clemenko/rke_airgap_install](https://github.com/clemenko/rke_airgap_install).
 
 Heck [watch the video](https://www.youtube.com/watch?v=IkQJc5-_duo).
 
@@ -244,18 +179,11 @@ cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
 ```
 
-#### studentb-c
+#### studentb & studentc
 
 Let's run the same commands on the other two servers, b and c.
 
 ```bash
-# set the token from the one from studentA - remember to copy and paste from the first node.
-token=K........
-
-# notice $ipa is the ip of the first node
-mkdir -p /etc/rancher/rke2/
-echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
-
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
 
@@ -268,6 +196,12 @@ yum install -y *.rpm
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 INSTALL_RKE2_TYPE=agent sh -
 # -----------------------------------------
 
+# set the token from the one from studentA - remember to copy and paste from the first node.
+token=K........
+
+# notice $ipa is the ip of the first node
+mkdir -p /etc/rancher/rke2/
+echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
 
 # start all the things
 systemctl enable rke2-agent.service && systemctl start rke2-agent.service
@@ -297,6 +231,8 @@ watch kubectl get pod -n longhorn-system
 Navigate to the dashboard at http://longhorn.$NUM.rfed.run
 
 Once everything is running we can move on.
+
+---
 
 ## Rancher
 
@@ -328,6 +264,8 @@ Ready for a short cut for Rancher? From the student$NUMa node.
 /opt/rke2-artifacts/easy_rancher.sh
 ```
 
+---
+
 ## Neuvector
 
 If we have time we can start to look at a security layer tool for Kubernetes, https://neuvector.com/. They have fairly good [docs here](https://open-docs.neuvector.com/).
@@ -345,6 +283,8 @@ Navigate to https://neuvector.$NUM.rfed.run.
 
 The username is `admin`.
 The password is `admin`.
+
+---
 
 ## Gitea and Fleet
 
