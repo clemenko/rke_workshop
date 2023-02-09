@@ -9,7 +9,7 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 ## Agenda
 
 - [Rules of Engagement](#Rules-of-Engagement)
-- [Rancher - Slides](rancher_burrito.pdf)
+- [Rancher - Slides](rhttps://github.com/clemenko/rke_workshop/raw/main/rancher_burrito.pdf)
 - [Setup](#setup)
 - [RKE2 - STIG](#RKE2---STIG)
 - [Choose Your Own Adventure](#choose-your-own-adventure)
