@@ -165,11 +165,11 @@ yum install -y rke2*.rpm
 # -----------------------------------------
 
 # ONLINE ----------------------------------
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 sh - 
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 sh - 
 # ----------------------------------------- 
 
 # start all the things
-systemctl enable rke2-server.service && systemctl start rke2-server.service
+systemctl enable --now rke2-server.service
 
 # wait and add link
 export KUBECONFIG=/etc/rancher/rke2/rke2.yaml 
@@ -194,7 +194,7 @@ yum install -y *.rpm
 # -----------------------------------------
 
 # ONLINE ----------------------------------
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24.9 INSTALL_RKE2_TYPE=agent sh -
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
 # -----------------------------------------
 
 # set the token from the one from studentA - remember to copy and paste from the first node.
@@ -205,7 +205,7 @@ mkdir -p /etc/rancher/rke2/
 echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
 
 # start all the things
-systemctl enable rke2-agent.service && systemctl start rke2-agent.service
+systemctl enable --now rke2-agent.service
 ```
 
 ---
@@ -313,7 +313,7 @@ The password is `Pa22word`.
 
 We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea_fleet.yml to point to `git.$NUM.rfed.run`.
 
-Once edited we can add to fleet with 
+Once edited we can add to fleet with:
 
 ```bash
 # patch

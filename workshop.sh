@@ -3,38 +3,34 @@
 # edit vars
 ###################################
 set -e
-num=1 # num of students
+num=2 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
 size=s-4vcpu-8gb
 key=30:98:4f:c5:47:c2:88:28:fe:3c:23:cd:52:49:51:01
+image=rockylinux-9-x64
 
 domain=rfed.run
 
-image=rockylinux-9-x64
-
-deploy_k3s=false
-
-export RKE_VERSION=1.24.9
-export CERT_VERSION=v1.10.0
-export RANCHER_VERSION=v2.7.0
-export LONGHORN_VERSION=v1.4.0
-
+export RKE_VERSION=1.24.10
 
 ######  NO MOAR EDITS #######
 export RED='\x1b[0;31m'
 export GREEN='\x1b[32m'
 export BLUE='\x1b[34m'
-export YELLOW='\x1b[33m'
 export NO_COLOR='\x1b[0m'
 
 #better error checking
 command -v pdsh >/dev/null 2>&1 || { echo -e "$RED" " ** Pdsh was not found. Please install before preceeding. ** " "$NO_COLOR" >&2; exit 1; }
 
+#### doctl_list ####
+function dolist () { doctl compute droplet list --no-header|grep $prefix |sort -k 2 | awk '{ print $2" "$3" "$4" "$5" "$6" "$7" "$8" "$9}'; }
+
 ################################# up ################################
 function up () {
-if [ -f hosts.txt ]; then
+
+if [[ ! -z $(dolist) ]]; then
   echo -e "$RED" "Warning - cluster already detected..." "$NO_COLOR"
   exit
 fi
@@ -47,25 +43,24 @@ for i in $(seq 1 $num); do
 done
 echo -n " building vms for $num $prefix(s): "
 doctl compute droplet create $build_list --region $zone --image $image --size $size --ssh-keys $key --wait > /dev/null 2>&1
-doctl compute droplet list|grep -v ID|grep $prefix|awk '{print $3" "$2}'> hosts.txt
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 #check for SSH
 echo -n " checking for ssh"
-for ext in $(awk '{print $1}' hosts.txt); do
+for ext in $(dolist | awk '{print $3}'); do
   until [ $(ssh -o ConnectTimeout=1 $user@$ext 'exit' 2>&1 | grep 'timed out\|refused' | wc -l) = 0 ]; do echo -n "." ; sleep 5; done
 done
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
-host_list=$(awk '{printf $1","}' hosts.txt|sed 's/,$//')
-master_list=$(awk '/a/{printf $1","}' hosts.txt| sed 's/,$//')
+host_list=$(dolist | awk '{printf $2","}' | sed 's/,$//')
+master_list=$(dolist | awk '/a/{printf $2","}' | sed 's/,$//')
 
 echo -n " updating dns "
 for i in $(seq 1 $num); do
- doctl compute domain records create $domain --record-type A --record-name $prefix"$i"a --record-ttl 150 --record-data $(cat hosts.txt|grep $prefix"$i"a|awk '{print $1}') > /dev/null 2>&1
- doctl compute domain records create $domain --record-type A --record-name $prefix"$i"b --record-ttl 150 --record-data $(cat hosts.txt|grep $prefix"$i"b|awk '{print $1}') > /dev/null 2>&1
- doctl compute domain records create $domain --record-type A --record-name $prefix"$i"c --record-ttl 150 --record-data $(cat hosts.txt|grep $prefix"$i"c|awk '{print $1}') > /dev/null 2>&1
- doctl compute domain records create $domain --record-type A --record-name $i --record-ttl 150 --record-data $(cat hosts.txt|grep $prefix"$i"a|awk '{print $1}') > /dev/null 2>&1
+ doctl compute domain records create $domain --record-type A --record-name $prefix"$i"a --record-ttl 150 --record-data $(dolist |grep $prefix"$i"a|awk '{print $2}') > /dev/null 2>&1
+ doctl compute domain records create $domain --record-type A --record-name $prefix"$i"b --record-ttl 150 --record-data $(dolist |grep $prefix"$i"b|awk '{print $2}') > /dev/null 2>&1
+ doctl compute domain records create $domain --record-type A --record-name $prefix"$i"c --record-ttl 150 --record-data $(dolist |grep $prefix"$i"c|awk '{print $2}') > /dev/null 2>&1
+ doctl compute domain records create $domain --record-type A --record-name $i --record-ttl 150 --record-data $(dolist |grep $prefix"$i"a|awk '{print $2}') > /dev/null 2>&1
  doctl compute domain records create $domain --record-type CNAME --record-name "*.$i" --record-ttl 150 --record-data "$i".$domain. > /dev/null 2>&1
 done
 echo -e "$GREEN" "ok" "$NO_COLOR"
@@ -79,10 +74,6 @@ echo -e "$GREEN" "ok" "$NO_COLOR"
 echo -n " updating sshd "
 pdsh -l root -w $host_list 'echo "root:Pa22word" | chpasswd; sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config; systemctl restart sshd' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
-
-#echo -n " install k3sup"
-#pdsh -l root -w $host_list 'curl -sLS https://get.k3sup.dev | sudo sh ;echo "StrictHostKeyChecking no" > ~/.ssh/config; echo search '$domain' >> /etc/resolvconf/resolv.conf.d/tail; resolvconf -u' > /dev/null 2>&1
-#echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " setting up environment"
 pdsh -l root -w $host_list 'echo -e "[keyfile]\nunmanaged-devices=interface-name:cali*;interface-name:flannel*" > /etc/NetworkManager/conf.d/rke2-canal.conf ; echo $(hostname| sed -e "s/student//" -e "s/a//" -e "s/b//" -e "s/c//") > /root/NUM; echo "export NUM=\$(cat /root/NUM)" >> .bash_profile; echo "export ipa=\$(getent hosts student\"\$NUM\"a.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipb=\$(getent hosts student\"\$NUM\"b.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipc=\$(getent hosts student\"\$NUM\"c.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile ; echo "export PATH=\$PATH:/opt/bin" >> .bash_profile'
@@ -148,7 +139,7 @@ pdsh -l root -w $host_list "curl -s https://raw.githubusercontent.com/helm/helm/
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " install scripts"
-pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/master_build.sh; chmod 755 *.sh' > /dev/null 2>&1
+pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; chmod 755 *.sh' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " set up ssh key"
@@ -158,15 +149,8 @@ for i in $(seq 1 $num); do
   ssh-copy-id -i sshkey root@$prefix"$i"a.$domain > /dev/null 2>&1
   ssh-copy-id -i sshkey root@$prefix"$i"b.$domain > /dev/null 2>&1
   ssh-copy-id -i sshkey root@$prefix"$i"c.$domain > /dev/null 2>&1
-  rsync -avP master_build.sh root@$prefix"$i"a.$domain:/root/ > /dev/null 2>&1
 done
 echo -e "$GREEN" "ok" "$NO_COLOR"
-
-if [ "$deploy_k3s" = true ]; then
-  echo -n " deploy k3s, traefik, and code-server"
-  pdsh -l root -w $master_list '/root/master_build.sh' > /dev/null 2>&1
-  echo -e "$GREEN" "ok" "$NO_COLOR"
-fi
 
 echo ""
 echo "===== Cluster ====="
