@@ -202,7 +202,9 @@ curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=age
 # set the token from the one from studentA - remember to copy and paste from the first node.
 token=K........
 
-# notice $ipa is the ip of the first node
+# notice $ipa is the ip of the first node 
+
+# DO NOT CHANGE THE $ipa VARIABLE...
 mkdir -p /etc/rancher/rke2/
 echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
 
