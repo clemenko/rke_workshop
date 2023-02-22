@@ -313,7 +313,7 @@ Now we can go to http://git.$NUM.rfed.run/.
 The username is `gitea`.
 The password is `Pa22word`.
 
-We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea_fleet.yml to point to `git.$NUM.rfed.run`.
+We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea.yml to point to `git.$NUM.rfed.run`.
 
 Once edited we can add to fleet with:
 
