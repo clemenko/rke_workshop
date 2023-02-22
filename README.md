@@ -111,9 +111,11 @@ Everything is setup below.
 
 ## Choose Your Own Adventure
 
-We have a choice here. RKE2 Air-gapped or online?
+We have a choice here. **RKE2 Air-gapped or online**?
 
 ### SSH
+
+# https://rfed.io/rkeshop_signup
 
 To connect with a root password of `Pa22word`:
 

@@ -3,7 +3,7 @@
 # edit vars
 ###################################
 set -e
-num=2 # num of students
+num=30 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
@@ -35,14 +35,13 @@ if [[ ! -z $(dolist) ]]; then
   exit
 fi
 
-build_list=""
-for i in $(seq 1 $num); do
- build_list="$prefix"$i"a $build_list"
- build_list="$prefix"$i"b $build_list"
- build_list="$prefix"$i"c $build_list"
-done
 echo -n " building vms for $num $prefix(s): "
-doctl compute droplet create $build_list --region $zone --image $image --size $size --ssh-keys $key --wait > /dev/null 2>&1
+doctl compute droplet create ${prefix}{1..30}a ${prefix}{1..30}b ${prefix}{1..30}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
+
+sleep 20 
+
+until [ $(doctl compute droplet list | grep $prefix | grep new | wc -l) = 0 ]; do echo -n "." ; sleep 5; done
+
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 #check for SSH
@@ -62,6 +61,8 @@ for i in $(seq 1 $num); do
  doctl compute domain records create $domain --record-type A --record-name $prefix"$i"c --record-ttl 150 --record-data $(dolist |grep $prefix"$i"c|awk '{print $2}') > /dev/null 2>&1
  doctl compute domain records create $domain --record-type A --record-name $i --record-ttl 150 --record-data $(dolist |grep $prefix"$i"a|awk '{print $2}') > /dev/null 2>&1
  doctl compute domain records create $domain --record-type CNAME --record-name "*.$i" --record-ttl 150 --record-data "$i".$domain. > /dev/null 2>&1
+
+ sleep 1
 done
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
