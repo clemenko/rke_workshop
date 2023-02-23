@@ -3,7 +3,7 @@
 # edit vars
 ###################################
 set -e
-num=1 # num of students
+num=3 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
@@ -36,7 +36,7 @@ if [[ ! -z $(dolist) ]]; then
 fi
 
 echo -n " building vms for $num $prefix(s): "
-doctl compute droplet create ${prefix}{1..1}a ${prefix}{1..1}b ${prefix}{1..1}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
+doctl compute droplet create ${prefix}{1..3}a ${prefix}{1..3}b ${prefix}{1..3}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
 
 sleep 20 
 
@@ -165,9 +165,10 @@ doctl compute droplet list --no-header |grep $prefix
 #remove the vms
 function kill () {
 echo -n " killing it all "
-for i in $(doctl compute domain records list $domain --no-header|grep $prefix|awk '{print $1}'; doctl compute domain records list $domain --no-header|grep -w '1\|2\|3\|4\|5\|6\|7\|8\|9\|10\|11\|12\|13\|14\|15\|16\|17\|18\|19\|20\|21\|22\|23\|24\|25\|26\|27\|28\|29\|30\|31\|32\|33'|awk '{print $1}' ); do 
-  doctl compute domain records delete $domain $i --force
+for i in $(doctl compute domain records list $domain --no-header | grep -v "@"| awk '{print $1}' ); do    
+  doctl compute domain records delete $domain $i --force; 
 done
+
 
 for i in $(doctl compute droplet list --no-header|grep $prefix|awk '{print $1}'); do 
   doctl compute droplet delete --force $i
