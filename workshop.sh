@@ -143,7 +143,7 @@ pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.gith
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " install code-serer"
-pdsh -l root -w $master_list 'cd ' > /dev/null 2>&1
+pdsh -l root -w $master_list 'curl -fsSL https://code-server.dev/install.sh | sh ; mkdir -p ~/.config/code-server/; echo -e "bind-addr: 0.0.0.0:8080\nauth: password\npassword: Pa22word\ncert: false" > ~/.config/code-server/config.yaml ; systemctl enable --now code-server@root; yum install -y git; cd /opt; git clone https://github.com/clemenko/rke_workshop.git' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " set up ssh key"
