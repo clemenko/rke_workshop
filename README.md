@@ -107,15 +107,22 @@ kubelet-arg:
 - authorization-mode=Webhook
 ```
 
-Everything is setup below.
+Enough STIG. Let's start deploying.
 
-## Choose Your Own Adventure
-
-We have a choice here. **RKE2 Air-gapped or online**?
-
-### SSH
+## Sign-Up for a Student Environment
 
 # https://rfed.io/rkeshop_signup
+
+
+## Code-Server
+
+Navigate to http://student$NUMa.rfed.run:8080
+
+Password = `Pa22word`.
+
+We can SSH from there.
+
+### SSH
 
 To connect with a root password of `Pa22word`:
 
@@ -126,7 +133,9 @@ ssh root@student$NUMa.rfed.run # Change $NUM to your student number
 echo $NUM
 ```
 
-OR `csshX root@student1a.rfed.run root@student1b.rfed.run root@student1c.rfed.run`
+## Choose Your Own Adventure
+
+We have a choice here. **RKE2 Air-gapped or online**?
 
 ### RKE2 - Install
 
