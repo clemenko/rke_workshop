@@ -12,8 +12,10 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [Rancher - Slides](https://github.com/clemenko/rke_workshop/raw/main/rancher_burrito.pdf)
 - [Setup](#setup)
 - [RKE2 - STIG](#RKE2---STIG)
-- [Choose Your Own Adventure](#choose-your-own-adventure)
+- [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
+- [Code-Server](#code-server)
   - [SSH](#ssh)
+- [Choose Your Own Adventure](#choose-your-own-adventure)
   - [RKE2 - Install](#RKE2---Install)
     - [studenta](#studenta)
     - [studentb-c](#studentb-c)
@@ -111,8 +113,7 @@ Enough STIG. Let's start deploying.
 
 ## Sign-Up for a Student Environment
 
-# https://rfed.io/rkeshop_signup
-
+## https://rfed.io/rkeshop_signup
 
 ## Code-Server
 
