@@ -3,7 +3,7 @@
 # edit vars
 ###################################
 set -e
-num=32 # num of students
+num=1 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
@@ -36,7 +36,7 @@ if [[ ! -z $(dolist) ]]; then
 fi
 
 echo -n " building vms for $num $prefix(s): "
-doctl compute droplet create ${prefix}{1..32}a ${prefix}{1..32}b ${prefix}{1..32}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
+doctl compute droplet create ${prefix}{1..1}a ${prefix}{1..1}b ${prefix}{1..1}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
 
 sleep 20 
 
@@ -140,6 +140,10 @@ echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " install scripts"
 pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; chmod 755 *.sh' > /dev/null 2>&1
+echo -e "$GREEN" "ok" "$NO_COLOR"
+
+echo -n " install code-serer"
+pdsh -l root -w $master_list 'cd ' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " set up ssh key"
