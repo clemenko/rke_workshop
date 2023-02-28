@@ -1,6 +1,6 @@
 # Rancher Workshop - https://rfed.io/rkeshop
 
-#### clemenko@rancherfederal.com | [@clemenko](https://twitter.com/clemenko)
+#### clemenko@gmail.com | [@clemenko](https://twitter.com/clemenko)
 
 ![logo](./images/logo_long.jpg)
 
