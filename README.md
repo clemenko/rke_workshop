@@ -239,6 +239,9 @@ helm upgrade -i longhorn longhorn/longhorn --namespace longhorn-system --create-
 # to verify that longhorn is the default storage class
 kubectl get sc
 
+# add encrypted storage class
+kubectl apply -f https://raw.githubusercontent.com/clemenko/k8s_yaml/master/longhorn_encryption.yml
+
 # Watch it coming up
 watch kubectl get pod -n longhorn-system
 ```
