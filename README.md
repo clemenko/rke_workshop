@@ -185,11 +185,14 @@ kubectl get sc
 # add encrypted storage class
 kubectl apply -f https://raw.githubusercontent.com/clemenko/k8s_yaml/master/longhorn_encryption.yml
 
+# go to page
+echo "---------------------------------------------------------"
+echo " control/command click : http://longhorn.$NUM.rfed.run"
+echo "---------------------------------------------------------"
+
 # Watch it coming up
 watch kubectl get pod -n longhorn-system
 ```
-
-Navigate to the dashboard at http://longhorn.$NUM.rfed.run
 
 Once everything is running we can move on.
 
@@ -212,18 +215,16 @@ helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --cr
 
 # now for rancher
 helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --create-namespace --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1 --set auditLog.level=2 --set auditLog.destination=hostPath
-```
 
-Navigate to https://rancher.$NUM.rfed.run.
+# go to page
+echo "---------------------------------------------------------"
+echo " control/command click : http://rancher.$NUM.rfed.run"
+echo "---------------------------------------------------------"
+
+```
 
 The username is `admin`.
 The password is `bootStrapAllTheThings`.
-
-Ready for a short cut for Rancher? From the student$NUMa node.
-
-```bash
-/opt/rke2-artifacts/easy_rancher.sh
-```
 
 ---
 
