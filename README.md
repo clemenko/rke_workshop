@@ -138,7 +138,7 @@ systemctl enable --now rke2-agent.service
 
 ## RKE2 - Air Gap
 
-Before we move on, let's take a second to call our how to air gap RKE2. Without going into great detail there is a [blog post](https://github.com/clemenko/rke_airgap_install).
+Before we move on, let's take a second to call our how to air gap RKE2.
 
 tl:dr : Move the following files:
 
