@@ -3,7 +3,7 @@
 # edit vars
 ###################################
 set -e
-num=14 # num of students
+num=1 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
@@ -36,7 +36,7 @@ if [[ ! -z $(dolist) ]]; then
 fi
 
 echo -n " building vms for $num $prefix(s): "
-doctl compute droplet create ${prefix}{1..14}a ${prefix}{1..14}b ${prefix}{1..14}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
+doctl compute droplet create ${prefix}{1..1}a ${prefix}{1..1}b ${prefix}{1..1}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
 
 sleep 20 
 
@@ -68,7 +68,7 @@ echo -e "$GREEN" "ok" "$NO_COLOR"
 sleep 40
 
 echo -n " adding os packages"
-pdsh -l root -w $host_list 'yum install -y nfs-utils cryptsetup iscsi-initiator-utils; systemctl start iscsid.service; systemctl enable iscsid.service vim'  > /dev/null 2>&1
+pdsh -l root -w $host_list 'yum install -y nfs-utils cryptsetup iscsi-initiator-utils vim container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils epel-releases; systemctl enable --now iscsid.service'  > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " updating sshd "
@@ -76,7 +76,7 @@ pdsh -l root -w $host_list 'echo "root:Pa22word" | chpasswd; sed -i "s/PasswordA
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " setting up environment"
-pdsh -l root -w $host_list 'echo -e "[keyfile]\nunmanaged-devices=interface-name:cali*;interface-name:flannel*" > /etc/NetworkManager/conf.d/rke2-canal.conf ; echo $(hostname| sed -e "s/student//" -e "s/a//" -e "s/b//" -e "s/c//") > /root/NUM; echo "export NUM=\$(cat /root/NUM)" >> .bash_profile; echo "export ipa=\$(getent hosts student\"\$NUM\"a.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipb=\$(getent hosts student\"\$NUM\"b.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile;echo "export ipc=\$(getent hosts student\"\$NUM\"c.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bash_profile ; echo "export PATH=\$PATH:/opt/bin" >> .bash_profile'
+pdsh -l root -w $host_list 'echo -e "[keyfile]\nunmanaged-devices=interface-name:cali*;interface-name:flannel*" > /etc/NetworkManager/conf.d/rke2-canal.conf ; echo $(hostname| sed -e "s/student//" -e "s/a//" -e "s/b//" -e "s/c//") > /root/NUM; echo "export NUM=\$(cat /root/NUM)" >> .bashrc; echo "export ipa=\$(getent hosts student\"\$NUM\"a.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bashrc;echo "export ipb=\$(getent hosts student\"\$NUM\"b.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bashrc;echo "export ipc=\$(getent hosts student\"\$NUM\"c.'$domain'|awk '"'"'{print \$1}'"'"')" >> .bashrc ; echo "export PATH=\$PATH:/opt/bin" >> .bashrc'
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 #kernel tuning
@@ -134,16 +134,13 @@ EOF
 sysctl -p' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
-echo -e -n " loading stuff"
-pdsh -l root -w $host_list "curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash; mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/sha256sum-amd64.txt && dnf install -y container-selinux iptables libnetfilter_conntrack libnfnetlink libnftnl policycoreutils-python-utils && curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v$RKE_VERSION%2Brke2r1.stable.0/rke2-common-$RKE_VERSION.rke2r1-0.x86_64.rpm; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.11.stable.1/rke2-selinux-0.11-1.el8.noarch.rpm" > /dev/null 2>&1
-echo -e "$GREEN" "ok" "$NO_COLOR"
-
-echo -n " install scripts"
-pdsh -l root -w $master_list 'cd /opt/rke2-artifacts; curl -#OL https://raw.githubusercontent.com/clemenko/rke_workshop/main/easy_rancher.sh; chmod 755 *.sh' > /dev/null 2>&1
-echo -e "$GREEN" "ok" "$NO_COLOR"
+#echo -e -n " loading stuff"
+# deprecated
+#pdsh -l root -w $host_list "curl -s https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash; mkdir /opt/rke2-artifacts && cd /opt/rke2-artifacts/ && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2-images.linux-amd64.tar.zst && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/rke2.linux-amd64.tar.gz && curl -#OL https://github.com/rancher/rke2/releases/download/v$RKE_VERSION%2Brke2r1/sha256sum-amd64.txt &&  curl -sfL https://get.rke2.io --output install.sh && chmod 755 install.sh; curl -#OL https://github.com/rancher/rke2-packaging/releases/download/v$RKE_VERSION%2Brke2r1.stable.0/rke2-common-$RKE_VERSION.rke2r1-0.x86_64.rpm; curl -#OL https://github.com/rancher/rke2-selinux/releases/download/v0.11.stable.1/rke2-selinux-0.11-1.el8.noarch.rpm" > /dev/null 2>&1
+#echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " install code-serer"
-pdsh -l root -w $master_list 'curl -fsSL https://code-server.dev/install.sh | sh ; mkdir -p ~/.config/code-server/; echo -e "bind-addr: 0.0.0.0:8080\nauth: password\npassword: Pa22word\ncert: false" > ~/.config/code-server/config.yaml ; systemctl enable --now code-server@root; yum install -y git; cd /opt; git clone https://github.com/clemenko/rke_workshop.git' > /dev/null 2>&1
+pdsh -l root -w $master_list 'curl -fsSL https://code-server.dev/install.sh | sh ; mkdir -p /root/.config/code-server/ /root/.local/share/code-server/User/; echo -e "bind-addr: 0.0.0.0:8080\nauth: password\npassword: Pa22word\ncert: false" > ~/.config/code-server/config.yaml ; echo -e "{\n    \"terminal.integrated.defaultLocation\": \"editor\",\n    \"terminal.integrated.shell.linux\": \"/bin/bash\",\n    \"terminal.integrated.defaultProfile.linux\": \"bash\"\n}" > /root/.local/share/code-server/User/settings.json ; systemctl enable --now code-server@root; yum install -y git; cd /opt; git clone https://github.com/clemenko/rke_workshop.git' > /dev/null 2>&1
 echo -e "$GREEN" "ok" "$NO_COLOR"
 
 echo -n " set up ssh key"

@@ -11,14 +11,13 @@ This is a simple workshop for installing RKE2 in an air gapped way. We can pivot
 - [Rules of Engagement](#Rules-of-Engagement)
 - [Rancher - Slides](https://github.com/clemenko/rke_workshop/raw/main/rancher_burrito.pdf)
 - [Setup](#setup)
-- [RKE2 - STIG](#RKE2---STIG)
+- [RKE2 - STIG](#rke2---stig)
 - [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
 - [Code-Server](#code-server)
-  - [SSH](#ssh)
-- [Choose Your Own Adventure](#choose-your-own-adventure)
-  - [RKE2 - Install](#RKE2---Install)
-    - [studenta](#studenta)
-    - [studentb-c](#studentb-c)
+- [RKE2 - Install](#rke22---install)
+  - [studenta](#studenta)
+  - [studentb-c](#studentb-c)
+- [RKE2 - Air Gap](#rke2---air-gap)
 - [Longhorn](#longhorn)
 - [Rancher](#rancher)
 - [Neuvector](#neuvector)
@@ -55,60 +54,6 @@ Bottom Line
 - Enable SElinux
 - Update the config for the Control Plane and Worker nodes.
 
-Control Plane Typical Config:
-
-```yaml
-profile: cis-1.6
-selinux: true
-secrets-encryption: true
-write-kubeconfig-mode: 0600
-streaming-connection-idle-timeout: 5m
-kube-controller-manager-arg:
-- bind-address=127.0.0.1
-- use-service-account-credentials=true
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-kube-scheduler-arg:
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-kube-apiserver-arg:
-- tls-min-version=VersionTLS12
-- tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-- authorization-mode=RBAC,Node
-- anonymous-auth=false
-- audit-policy-file=/etc/rancher/rke2/audit-policy.yaml
-- audit-log-mode=blocking-strict
-- audit-log-maxage=30
-kubelet-arg:
-- protect-kernel-defaults=true
-- read-only-port=0
-- authorization-mode=Webhook
-```
-
-We also need the audit policy in `/etc/rancher/rke2/audit-policy.yaml`.
-
-```yaml
-apiVersion: audit.k8s.io/v1
-kind: Policy
-rules:
-- level: RequestResponse
-```
-
-Worker Typical Config:
-
-```yaml
-token: $TOKEN
-server: https://$RKE_SERVER:9345
-write-kubeconfig-mode: 0600
-profile: cis-1.6
-kube-apiserver-arg:
-- authorization-mode=RBAC,Node
-kubelet-arg:
-- protect-kernel-defaults=true
-- read-only-port=0
-- authorization-mode=Webhook
-```
-
 Enough STIG. Let's start deploying.
 
 ## Sign-Up for a Student Environment
@@ -121,24 +66,14 @@ Navigate to http://student$NUMa.rfed.run:8080
 
 Password = `Pa22word`.
 
-We can SSH from there.
+We can SSH from there. OR use ssh from your laptop.
 
-### SSH
+SSH to the other servers for your student number.
 
-To connect with a root password of `Pa22word`:
+- Open a second terminal tab and `ssh $ipb`.
+- Open a third terminal tab and `ssh $ipc`.
 
-```bash
-ssh root@student$NUMa.rfed.run # Change $NUM to your student number
-
-# Validate the student number
-echo $NUM
-```
-
-## Choose Your Own Adventure
-
-We have a choice here. **RKE2 Air-gapped or online**?
-
-### RKE2 - Install
+## RKE2 - Install
 
 If you are bored you can read the [docs](https://docs.rke2.io/). We have a choice to make. We can install [air-gapped](#airgap) or [online](#online).
 
@@ -148,7 +83,7 @@ There is another git repository with all the air-gapping instructions [https://g
 
 Heck [watch the video](https://www.youtube.com/watch?v=IkQJc5-_duo).
 
-#### studenta
+### studenta
 
 SSH in and run the following commands. Take your time. Notice the online VS. air gap instructions.
 
@@ -169,16 +104,8 @@ echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n 
 # server install options https://docs.rke2.io/install/install_options/server_config/
 # be patient this takes a few minutes.
 
-# OFFLINE ---------------------------------
-INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
-
-# wait and run separately
-yum install -y rke2*.rpm
-# -----------------------------------------
-
-# ONLINE ----------------------------------
+# online install
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 sh - 
-# ----------------------------------------- 
 
 # start all the things
 systemctl enable --now rke2-server.service
@@ -192,7 +119,7 @@ cat /var/lib/rancher/rke2/server/node-token
 # will need this for the agents to join
 ```
 
-#### studentb & studentc
+### studentb & studentc
 
 Let's run the same commands on the other two servers, b and c.
 
@@ -200,14 +127,8 @@ Let's run the same commands on the other two servers, b and c.
 # server install options https://docs.rke2.io/install/install_options/linux_agent_config/
 cd /opt/rke2-artifacts/
 
-# OFFLINE ---------------------------------
-INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
-yum install -y *.rpm
-# -----------------------------------------
-
-# ONLINE ----------------------------------
+# online install
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
-# -----------------------------------------
 
 # set the token from the one from studentA - remember to copy and paste from the first node.
 token=K........
@@ -220,6 +141,35 @@ echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n
 
 # start all the things
 systemctl enable --now rke2-agent.service
+```
+
+## RKE2 - Air Gap
+
+Before we move on, let's take a second to call our how to air gap RKE2. Without going into great detail there is a [blog post](https://github.com/clemenko/rke_airgap_install).
+
+tl:dr : Move the following files:
+
+- install.sh - install script
+- rke2-images.linux-amd64.tar.zst - images
+- rke2.linux-amd64.tar.gz - binaries
+- rke2-common-1.24.10.rke2r1-0.x86_64.rpm - common rpm
+- rke2-selinux-0.11-1.el8.noarch.rpm - selinux contexts
+
+On the server install:
+
+```bash
+# OFFLINE ---------------------------------
+INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
+
+# wait and run separately
+yum install -y rke2*.rpm
+```
+
+On the agent install:
+
+```bash
+INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
+yum install -y *.rpm
 ```
 
 ---
