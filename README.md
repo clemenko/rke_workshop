@@ -2,37 +2,36 @@
 
 #### clemenko@gmail.com | [@clemenko](https://twitter.com/clemenko)
 
-![logo](./images/logo_long.jpg)
+![logo](./images/rgs-banner-rounded.png)
 
-This is a simple workshop for installing RKE2 in an air gapped way. We can pivot for online and/or k3s. :D
+This is a simple workshop for installing RKE2, Rancher, Longhorn, NeuVector, and a few extras. We can pivot for k3s or airgapped. :D
 
 ## Agenda
 
-- [Rules of Engagement](#Rules-of-Engagement)
-- [Rancher - Slides](https://github.com/clemenko/rke_workshop/raw/main/rancher_burrito.pdf)
-- [Setup](#setup)
-- [RKE2 - STIG](#rke2---stig)
-- [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
-- [Code-Server](#code-server)
-- [RKE2 - Install](#rke22---install)
-  - [studenta](#studenta)
-  - [studentb-c](#studentb-c)
-- [RKE2 - Air Gap](#rke2---air-gap)
-- [Longhorn](#longhorn)
-- [Rancher](#rancher)
-- [Neuvector](#neuvector)
-- [Gitea and Fleet](#gitea-and-fleet)
-- [Questions, Thoughts](#Questions,-Thoughts)
-- [Profit](#profit)
+  * [Rules of Engagement](#rules-of-engagement)
+  * [Setup - COMPLETED ALREADY](#setup---completed-already)
+  * [RKE2 - STIG](#rke2---stig)
+  * [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
+  * [Code-Server](#code-server)
+  * [RKE2 - Install](#rke2---install)
+    * [studenta](#studenta)
+    * [studentb/studentc](#studentb-studentc)
+  * [RKE2 - Air Gap](#rke2---air-gap)
+  * [Longhorn](#longhorn)
+  * [Rancher](#rancher)
+  * [Neuvector](#neuvector)
+  * [Gitea and Fleet](#gitea-and-fleet)
+  * [Questions, Thoughts, Comments, Concerns](#questions--thoughts--comments--concerns)
+  * [Profit](#profit)
 
 ## Rules of Engagement
 
 - Basic Linux command line skills
-- Familiarity with a text editor (VS Code, vi, etc.)
+- Familiarity with a text editor (VSCode aka Code-Server)
 - Every student has 3 vms.
   - The instructor will assign the student a number.
   - Rocky Linux 9
-- Air Gapped or Online
+- Typicall Online Install
 - ASK QUESTIONS!
 
 ![kid](./images/tough_kid.jpg)
@@ -66,7 +65,7 @@ Navigate to http://student$NUMa.rfed.run:8080
 
 Password = `Pa22word`.
 
-We can SSH from there. OR use ssh from your laptop.
+We can SSH from there OR use ssh from your device/laptop.
 
 SSH to the other servers for your student number.
 
@@ -75,7 +74,7 @@ SSH to the other servers for your student number.
 
 ## RKE2 - Install
 
-If you are bored you can read the [docs](https://docs.rke2.io/). We have a choice to make. We can install [air-gapped](#airgap) or [online](#online).
+If you are bored you can read the [docs](https://docs.rke2.io/). For speed, we are completling an online installation.
 
 For this workshop all the bits have been downloaded for you. Check `/opt/`.
 
@@ -85,7 +84,7 @@ Heck [watch the video](https://www.youtube.com/watch?v=IkQJc5-_duo).
 
 ### studenta
 
-SSH in and run the following commands. Take your time. Notice the online VS. air gap instructions.
+SSH in and run the following commands. Take your time. Some commands can take a few minutes.
 
 ```bash
 useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
@@ -116,7 +115,7 @@ rsync -avP /var/lib/rancher/rke2/server/token $ipb:/root
 rsync -avP /var/lib/rancher/rke2/server/token $ipc:/root
 ```
 
-### studentb & studentc
+### studentb/studentc
 
 Let's run the same commands on the other two servers, b and c.
 
@@ -156,7 +155,7 @@ There is more detailed information in the blog post: https://github.com/clemenko
 
 Here is the easiest way to build stateful storage on this cluster. [Longhorn](https://longhorn.io) from Rancher is awesome. Lets deploy from the first node.
 
-Note we are installing online for speed. Please follow the [Air Gap Install](https://longhorn.io/docs/1.3.2/advanced-resources/deploy/airgap/#using-a-helm-chart) guide.
+Note we are installing online for speed. Please see the [Air Gap Install](https://longhorn.io/docs/1.3.2/advanced-resources/deploy/airgap/#using-a-helm-chart) guide.
 
 ```bash
 # kubectl apply
@@ -187,7 +186,7 @@ Once everything is running we can move on.
 
 For time, let's install Rancher in an online fashion.
 
-Note we are installing online for speed. Please follow the [Air Gap Install](https://docs.ranchermanager.rancher.io/pages-for-subheaders/air-gapped-helm-cli-install) guide.
+Note we are installing online for speed. Please see the [Air Gap Install](https://longhorn.io/docs/1.3.2/advanced-resources/deploy/airgap/#using-a-helm-chart) guide.
 
 ```bash
 # add repos
@@ -217,7 +216,7 @@ The password is `Pa22word`.
 
 If we have time we can start to look at a security layer tool for Kubernetes, https://neuvector.com/. They have fairly good [docs here](https://open-docs.neuvector.com/).
 
-Note we are installing online for speed.
+Note we are installing online for speed. Please see the [Air Gap Install](https://longhorn.io/docs/1.3.2/advanced-resources/deploy/airgap/#using-a-helm-chart) guide.
 
 ```bash
 helm repo add neuvector https://neuvector.github.io/neuvector-helm/
@@ -240,8 +239,6 @@ The password is `admin`.
 
 Why not add version control? If we have time.
 
-Note we are installing online for speed.
-
 ```bash
 helm repo add gitea-charts https://dl.gitea.io/charts/
 helm repo update
@@ -252,7 +249,7 @@ helm upgrade -i gitea gitea-charts/gitea --namespace gitea --create-namespace --
 watch kubectl get pod -n gitea
 ```
 
-Once everything is up. We can mirror a repo.
+Once everything is up. We can mirror a demo repo.
 
 ```bash
 # now lets mirror
