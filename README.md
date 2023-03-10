@@ -148,22 +148,7 @@ tl:dr : Move the following files:
 - rke2-common-1.24.10.rke2r1-0.x86_64.rpm - common rpm
 - rke2-selinux-0.11-1.el8.noarch.rpm - selinux contexts
 
-On the server install:
-
-```bash
-# OFFLINE ---------------------------------
-INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts sh install.sh 
-
-# wait and run separately
-yum install -y rke2*.rpm
-```
-
-On the agent install:
-
-```bash
-INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2-artifacts INSTALL_RKE2_TYPE=agent sh install.sh 
-yum install -y *.rpm
-```
+There is more detailed information in the blog post: https://github.com/clemenko/rke_airgap_install.
 
 ---
 
