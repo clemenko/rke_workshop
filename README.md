@@ -250,7 +250,11 @@ helm upgrade -i gitea gitea-charts/gitea --namespace gitea --create-namespace --
 
 # wait for it to complete
 watch kubectl get pod -n gitea
+```
 
+Once everything is up. We can mirror a repo.
+
+```bash
 # now lets mirror
 curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: application/json' -H 'authorization: Basic Z2l0ZWE6UGEyMndvcmQ=' -H 'Content-Type: application/json' -d '{ "clone_addr": "https://github.com/clemenko/rke_workshop", "repo_name": "workshop","repo_owner": "gitea"}'
 
