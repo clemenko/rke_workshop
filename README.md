@@ -88,7 +88,6 @@ Heck [watch the video](https://www.youtube.com/watch?v=IkQJc5-_duo).
 SSH in and run the following commands. Take your time. Notice the online VS. air gap instructions.
 
 ```bash
-cd /opt/rke2-artifacts/
 useradd -r -c "etcd user" -s /sbin/nologin -M etcd -U
 mkdir -p /etc/rancher/rke2/ /var/lib/rancher/rke2/server/manifests/
 
@@ -102,8 +101,6 @@ echo -e "apiVersion: audit.k8s.io/v1\nkind: Policy\nrules:\n- level: RequestResp
 echo -e "---\napiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: rke2-ingress-nginx\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    controller:\n      config:\n        use-forwarded-headers: true\n      extraArgs:\n        enable-ssl-passthrough: true" > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx-config.yaml; 
 
 # server install options https://docs.rke2.io/install/install_options/server_config/
-# be patient this takes a few minutes.
-
 # online install
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 sh - 
 
@@ -114,9 +111,9 @@ systemctl enable --now rke2-server.service
 export KUBECONFIG=/etc/rancher/rke2/rke2.yaml 
 ln -s /var/lib/rancher/rke2/data/v1*/bin/kubectl  /usr/local/bin/kubectl
 
-# get token on server
-cat /var/lib/rancher/rke2/server/node-token
-# will need this for the agents to join
+# push token to studentb and studentc
+rsync -avP /var/lib/rancher/rke2/server/token $ipb:/root
+rsync -avP /var/lib/rancher/rke2/server/token $ipc:/root
 ```
 
 ### studentb & studentc
@@ -124,18 +121,14 @@ cat /var/lib/rancher/rke2/server/node-token
 Let's run the same commands on the other two servers, b and c.
 
 ```bash
-# server install options https://docs.rke2.io/install/install_options/linux_agent_config/
-cd /opt/rke2-artifacts/
-
+# agent install options https://docs.rke2.io/install/install_options/linux_agent_config/
 # online install
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL=v1.24 INSTALL_RKE2_TYPE=agent sh -
 
-# set the token from the one from studentA - remember to copy and paste from the first node.
-token=K........
+# use token
+token=$(cat /root/token)
 
-# notice $ipa is the ip of the first node 
-
-# DO NOT CHANGE THE $ipa VARIABLE...
+# deploy 
 mkdir -p /etc/rancher/rke2/
 echo -e "server: https://$ipa:9345\ntoken: $token\nwrite-kubeconfig-mode: 0600\n#profile: cis-1.6\nkube-apiserver-arg:\n- \"authorization-mode=RBAC,Node\"\nkubelet-arg:\n- \"protect-kernel-defaults=true\" " > /etc/rancher/rke2/config.yaml
 
