@@ -214,7 +214,7 @@ helm repo update
 helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true
 
 # now for rancher
-helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --create-namespace --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=bootStrapAllTheThings --set replicas=1 --set auditLog.level=2 --set auditLog.destination=hostPath
+helm upgrade -i rancher rancher-latest/rancher --namespace cattle-system --create-namespace --set hostname=rancher.$NUM.rfed.run --set bootstrapPassword=Pa22word --set replicas=1 --set auditLog.level=2 --set auditLog.destination=hostPath
 
 # go to page
 echo "---------------------------------------------------------"
@@ -224,7 +224,7 @@ echo "---------------------------------------------------------"
 ```
 
 The username is `admin`.
-The password is `bootStrapAllTheThings`.
+The password is `Pa22word`.
 
 ---
 
@@ -239,9 +239,12 @@ helm repo add neuvector https://neuvector.github.io/neuvector-helm/
 helm repo update
 
 helm upgrade -i neuvector --namespace neuvector neuvector/core --create-namespace  --set imagePullSecrets=regsecret --set k3s.enabled=true --set k3s.runtimePath=/run/k3s/containerd/containerd.sock --set manager.ingress.enabled=true --set manager.ingress.host=neuvector.$NUM.rfed.run
-```
 
-Navigate to https://neuvector.$NUM.rfed.run.
+# go to page
+echo "---------------------------------------------------------"
+echo " control/command click : http://neuvector.$NUM.rfed.run"
+echo "---------------------------------------------------------"
+```
 
 The username is `admin`.
 The password is `admin`.
@@ -265,14 +268,17 @@ watch kubectl get pod -n gitea
 
 # now lets mirror
 curl -X POST 'http://git.'$NUM'.rfed.run/api/v1/repos/migrate' -H 'accept: application/json' -H 'authorization: Basic Z2l0ZWE6UGEyMndvcmQ=' -H 'Content-Type: application/json' -d '{ "clone_addr": "https://github.com/clemenko/rke_workshop", "repo_name": "workshop","repo_owner": "gitea"}'
-```
 
-Now we can go to http://git.$NUM.rfed.run/.
+# go to page
+echo "---------------------------------------------------------"
+echo " control/command click : http://git.$NUM.rfed.run"
+echo "---------------------------------------------------------"
+```
 
 The username is `gitea`.
 The password is `Pa22word`.
 
-We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea.yml to point to `git.$NUM.rfed.run`.
+We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea.yml . Change "$NUM" to your student number.
 
 Once edited we can add to fleet with:
 
