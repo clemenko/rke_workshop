@@ -3,7 +3,7 @@
 # edit vars
 ###################################
 set -e
-num=1 # num of students
+num=3 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
@@ -36,7 +36,7 @@ if [[ ! -z $(dolist) ]]; then
 fi
 
 echo -n " building vms for $num $prefix(s): "
-doctl compute droplet create ${prefix}{1..1}a ${prefix}{1..1}b ${prefix}{1..1}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
+doctl compute droplet create ${prefix}{1..3}a ${prefix}{1..3}b ${prefix}{1..3}c --region $zone --image $image --size $size --ssh-keys $key --droplet-agent=false > /dev/null 2>&1
 
 sleep 20 
 

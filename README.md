@@ -8,31 +8,30 @@ This is a simple workshop for installing RKE2, Rancher, Longhorn, NeuVector, and
 
 ## Agenda
 
-  * [Rules of Engagement](#rules-of-engagement)
-  * [Setup - COMPLETED ALREADY](#setup---completed-already)
-  * [RKE2 - STIG](#rke2---stig)
-  * [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
-  * [Code-Server](#code-server)
-  * [RKE2 - Install](#rke2---install)
-    * [studenta](#studenta)
-    * [studentb/studentc](#studentb-studentc)
-  * [RKE2 - Air Gap](#rke2---air-gap)
-  * [Longhorn](#longhorn)
-  * [Rancher](#rancher)
-  * [Neuvector](#neuvector)
-  * [Gitea and Fleet](#gitea-and-fleet)
-  * [Questions, Thoughts, Comments, Concerns](#questions--thoughts--comments--concerns)
-  * [Profit](#profit)
+* [Rules of Engagement](#rules-of-engagement)
+* [Setup - COMPLETED ALREADY](#setup---completed-already)
+* [RKE2 - STIG](#rke2---stig)
+* [Sign-Up for a Student Environment](#sign-up-for-a-student-environment)
+* [Code-Server](#code-server)
+* [RKE2 - Install](#rke2---install)
+  * [studenta](#studenta)
+  * [studentb/studentc](#studentb-studentc)
+* [RKE2 - Air Gap](#rke2---air-gap)
+* [Longhorn](#longhorn)
+* [Rancher](#rancher)
+* [Neuvector](#neuvector)
+* [Gitea and Fleet](#gitea-and-fleet)
+* [Questions, Thoughts, Comments, Concerns](#questions--thoughts--comments--concerns)
+* [Profit](#profit)
 
 ## Rules of Engagement
 
-- Basic Linux command line skills
-- Familiarity with a text editor (VSCode aka Code-Server)
-- Every student has 3 vms.
-  - The instructor will assign the student a number.
-  - Rocky Linux 9
-- Typicall Online Install
-- ASK QUESTIONS!
+* Basic Linux command line skills
+* Familiarity with a text editor (VSCode aka Code-Server)
+* Every student has 3 vms.
+  * The instructor will assign the student a number.
+  * Rocky Linux 9
+* ASK QUESTIONS!
 
 ![kid](./images/tough_kid.jpg)
 
@@ -50,8 +49,8 @@ We even have a tl:dr for Rancher https://github.com/clemenko/rancher_stig.
 
 Bottom Line
 
-- Enable SElinux
-- Update the config for the Control Plane and Worker nodes.
+* Enable SElinux
+* Update the config for the Control Plane and Worker nodes.
 
 Enough STIG. Let's start deploying.
 
@@ -69,14 +68,12 @@ We can SSH from there OR use ssh from your device/laptop.
 
 SSH to the other servers for your student number.
 
-- Open a second terminal tab and `ssh $ipb`.
-- Open a third terminal tab and `ssh $ipc`.
+* Open a second terminal tab and `ssh $ipb`.
+* Open a third terminal tab and `ssh $ipc`.
 
 ## RKE2 - Install
 
-If you are bored you can read the [docs](https://docs.rke2.io/). For speed, we are completling an online installation.
-
-For this workshop all the bits have been downloaded for you. Check `/opt/`.
+If you are bored you can read the [docs](https://docs.rke2.io/). For speed, we are completing an online installation.
 
 There is another git repository with all the air-gapping instructions [https://github.com/clemenko/rke_airgap_install](https://github.com/clemenko/rke_airgap_install).
 
@@ -141,11 +138,11 @@ Before we move on, let's take a second to call our how to air gap RKE2.
 
 tl:dr : Move the following files:
 
-- install.sh - install script
-- rke2-images.linux-amd64.tar.zst - images
-- rke2.linux-amd64.tar.gz - binaries
-- rke2-common-1.24.10.rke2r1-0.x86_64.rpm - common rpm
-- rke2-selinux-0.11-1.el8.noarch.rpm - selinux contexts
+* install.sh - install script
+* rke2-images.linux-amd64.tar.zst - images
+* rke2.linux-amd64.tar.gz - binaries
+* rke2-common-1.24.10.rke2r1-0.x86_64.rpm - common rpm
+* rke2-selinux-0.11-1.el8.noarch.rpm - selinux contexts
 
 There is more detailed information in the blog post: https://github.com/clemenko/rke_airgap_install.
 
