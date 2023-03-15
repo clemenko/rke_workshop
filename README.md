@@ -261,7 +261,7 @@ echo "---------------------------------------------------------"
 The username is `gitea`.
 The password is `Pa22word`.
 
-We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/fleet/src/branch/main/gitea.yml . Change "$NUM" to your student number.
+We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/workshop/src/branch/main/fleet/gitea.yaml . Change "$NUM" to your student number.
 
 Once edited we can add to fleet with:
 
