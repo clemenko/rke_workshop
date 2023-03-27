@@ -7,7 +7,7 @@ num=3 # num of students
 prefix=student
 password=Pa22word
 zone=nyc3
-size=s-4vcpu-8gb
+size=s-8vcpu-16gb-amd
 key=30:98:4f:c5:47:c2:88:28:fe:3c:23:cd:52:49:51:01
 image=rockylinux-9-x64
 
