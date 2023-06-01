@@ -141,8 +141,8 @@ tl:dr : Move the following files:
 * install.sh - install script
 * rke2-images.linux-amd64.tar.zst - images
 * rke2.linux-amd64.tar.gz - binaries
-* rke2-common-1.24.10.rke2r1-0.x86_64.rpm - common rpm
-* rke2-selinux-0.11-1.el8.noarch.rpm - selinux contexts
+* rke2-common-1.24.14.rke2r1-0.x86_64.rpm - common rpm
+* rke2-selinux-0.12-1.el9.noarch.rpm - selinux contexts
 
 There is more detailed information in the blog post: https://github.com/clemenko/rke_airgap_install.
 

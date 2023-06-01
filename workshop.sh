@@ -13,7 +13,7 @@ image=rockylinux-9-x64
 
 domain=rfed.run
 
-export RKE_VERSION=1.24.10
+export RKE_VERSION=1.24.14
 
 ######  NO MOAR EDITS #######
 export RED='\x1b[0;31m'
