@@ -266,8 +266,6 @@ We need to edit fleet yaml : http://git.$NUM.rfed.run/gitea/workshop/src/branch/
 Once edited we can add to fleet with:
 
 ```bash
-# patch
-kubectl patch clusters.fleet.cattle.io -n fleet-local local --type=merge -p '{"metadata": {"labels":{"name":"local"}}}'
 kubectl apply -f http://git.$NUM.rfed.run/gitea/workshop/raw/branch/main/fleet/gitea.yaml
 ```
 
