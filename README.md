@@ -1,4 +1,8 @@
-# Rancher Workshop - https://rfed.io/rkeshop
+# DEPRECATED for https://github.com/clemenko/hobbyfarm
+
+---
+
+## Rancher Workshop - https://rfed.io/rkeshop
 
 #### clemenko@gmail.com | [@clemenko](https://twitter.com/clemenko)
 
